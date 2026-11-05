@@ -170,7 +170,7 @@ td.wcg{color:var(--muted);white-space:normal;min-width:120px}
     <label class="toggle" for="acc"><input type="checkbox" id="acc" checked><span class="sw"></span>Accents required</label>
     <span class="bar" style="gap:8px"><span class="sub">Words</span><span class="seg" role="group" aria-label="Word level"><button data-lv="beginner">Beginner</button><button data-lv="intermediate">Intermediate</button><button data-lv="advanced">Advanced</button><button data-lv="all">All</button><button data-lv="category" id="catBtn">Category</button></span><select id="catSel" class="vsel" aria-label="Category" hidden></select></span>
     <span class="bar" style="gap:8px"><span class="sub">Translations</span><span class="seg" role="group" aria-label="Translations"><button id="tOff" data-t="off">Off</button><button id="tUnder" data-t="under">Under</button><button id="tAfter" data-t="after">After</button><button id="tHidden" data-t="hidden" title="The translation stays hidden until you finish the Greek word">After hidden</button></span></span>
-    <span class="bar" style="gap:8px"><span class="sub">Voice</span><span class="seg" role="group" aria-label="Voice"><button data-v="off">Off</button><button data-v="on">On</button></span><span class="sub" id="voiceNote"></span></span>
+    <span class="bar" style="gap:8px"><span class="sub">Voice</span><span class="seg" role="group" aria-label="Voice"><button data-v="off">Off</button><button data-v="on">On</button></span><select id="voiceSel" class="vsel" aria-label="Voice" hidden></select><select id="enVoiceSel" class="vsel" aria-label="Voice for English translations" hidden></select><span class="sub" id="voiceNote"></span></span>
     <span class="spacer"></span>
     <span class="kb" id="kb" data-s="unknown" role="status"><i class="dot"></i><span id="kbText">Keyboard: press a key</span></span>
     <button class="btn" id="restart" title="Restart (Tab)">↻ restart</button>
@@ -321,16 +321,50 @@ function save(){ try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e
 let dur = [0,30,60].includes(store.settings.dur) ? store.settings.dur : 30, accents = store.settings.accents, mapKeys = true; // key conversion is always on; it adapts to whatever layout the computer uses
 let voiceMode = (store.settings.voice==='start'||store.settings.voice==='on') ? 'on' : 'off';
 const TTS = 'speechSynthesis' in window ? window.speechSynthesis : null;
-let tVoices = [], enVoice = null;
+let tVoices = [], enVoices = [], tVoice = null, enVoice = null;
+// macOS lists joke voices (Bad News, Grandpa, Rocko, Zarvox ...) next to the real ones: never pick them by default
+const NOVELTY = /^(Albert|Bad News|Bahh|Bells|Boing|Bubbles|Cellos|Deranged|Eddy|Flo|Fred|Good News|Grandma|Grandpa|Hysterical|Jester|Junior|Kathy|Organ|Pipe Organ|Ralph|Reed|Rocko|Sandy|Shelley|Superstar|Trinoids|Whisper|Wobble|Zarvox)\b/i;
+const GOODV = {'el-gr':/melina|nikos|google|microsoft/i, 'pt-pt':/joana|catarina|joaquim|google|microsoft/i, 'pt-br':/luciana|felipe|fernanda|google|microsoft/i, en:/daniel|kate|serena|arthur|martha|oliver|stephanie|samantha|google|microsoft/i};
+const escV = t => String(t).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function vscore(v, want, good){ const l=v.lang.replace('_','-').toLowerCase(); return (NOVELTY.test(v.name)?-20:0) + (l===want?4:0) + (good.test(v.name)?3:0) + (/premium|enhanced|natural|neural|siri/i.test(v.name)?2:0) + (v.localService?1:0); }
+function voiceKey(){ return LANGS[cl].tts.toLowerCase(); }
+function fillVoiceSel(sel, list, saved, autoLabel){
+  const opt = v => `<option value="${escV(v.voiceURI)}">${escV(v.name)} · ${escV(v.lang.replace('_','-'))}</option>`;
+  const real = list.filter(v=>!NOVELTY.test(v.name)), odd = list.filter(v=>NOVELTY.test(v.name));
+  sel.innerHTML = `<option value="">${autoLabel}: auto${list[0]?' ('+escV(list[0].name)+')':''}</option>` + real.map(opt).join('') + (odd.length ? `<optgroup label="Novelty voices">${odd.map(opt).join('')}</optgroup>` : '');
+  sel.value = saved && list.some(v=>v.voiceURI===saved) ? saved : '';
+}
 function loadVoices(){
   if(!TTS) return;
-  const all = TTS.getVoices();
-  tVoices = all.filter(v=>v.lang.toLowerCase().startsWith(LANGS[cl].vp));
-  enVoice = all.find(v=>/^en[-_]GB/i.test(v.lang)) || all.find(v=>/^en/i.test(v.lang)) || null;
-  tVoices.sort((a,b)=>score(b)-score(a));
+  const all = TTS.getVoices(), want = voiceKey(), good = GOODV[want] || /google|microsoft/i;
+  tVoices = all.filter(v=>v.lang.toLowerCase().startsWith(LANGS[cl].vp)).sort((a,b)=>vscore(b,want,good)-vscore(a,want,good));
+  enVoices = all.filter(v=>/^en/i.test(v.lang)).sort((a,b)=>vscore(b,'en-gb',GOODV.en)-vscore(a,'en-gb',GOODV.en));
+  const sv = store.settings.voices || {};
+  tVoice = tVoices.find(v=>v.voiceURI===sv[want]) || tVoices[0] || null;
+  enVoice = enVoices.find(v=>v.voiceURI===sv.en) || enVoices[0] || null;
+  fillVoiceSel($('voiceSel'), tVoices, sv[want], LANGS[cl].name);
+  fillVoiceSel($('enVoiceSel'), enVoices, sv.en, 'English');
+  $('voiceSel').setAttribute('aria-label', LANGS[cl].name+' voice');
   $('voiceNote').textContent = tVoices.length ? '' : `no ${LANGS[cl].name} voice on this device`;
+  showVoicePick();
 }
-function score(v){ return (v.lang.replace('_','-').toLowerCase()===LANGS[cl].tts.toLowerCase()?4:0) + (/melina|google|microsoft|natural|enhanced|premium/i.test(v.name)?2:0) + (v.localService?1:0); }
+function showVoicePick(){
+  const on = voiceMode!=='off' && !!TTS;
+  let after = false; try{ after = trans==='after' || trans==='hidden'; }catch(e){}
+  $('voiceSel').hidden = !on || !tVoices.length;
+  $('enVoiceSel').hidden = !on || !enVoices.length || !after;
+}
+function previewVoice(isEn){
+  if(!TTS) return;
+  const u = new SpeechSynthesisUtterance(isEn ? 'good morning' : (cl==='el' ? 'Καλημέρα' : 'Bom dia'));
+  const v = isEn ? enVoice : tVoice; if(v){ u.voice=v; u.lang=v.lang; }
+  u.rate = 1.05; TTS.cancel(); TTS.speak(u);
+}
+function pickVoice(sel, key, isEn){
+  const sv = store.settings.voices || (store.settings.voices = {});
+  if(sel.value) sv[key] = sel.value; else delete sv[key];
+  save(); loadVoices(); previewVoice(isEn);
+}
 function say(i){
   if(!TTS || voiceMode==='off' || i<0 || i>=words.length) return;
   if(lang[i]==='t' && !orig[i]) return; // later word of a Greek phrase: the phrase was read with its first word
@@ -340,8 +374,8 @@ function say(i){
   const text = isEn ? words.filter((_,j)=>lang[j]==='en' && grp[j]===grp[i]).join(' ') : orig[i];
   const u = new SpeechSynthesisUtterance(text);
   u.lang = isEn ? 'en-GB' : LANGS[cl].tts;
-  const v = isEn ? enVoice : tVoices[0];
-  if(v) u.voice = v;
+  const v = isEn ? enVoice : tVoice;
+  if(v){ u.voice = v; u.lang = v.lang; }
   u.rate = 1.05;
   TTS.cancel(); TTS.speak(u);
 }
@@ -870,12 +904,15 @@ document.querySelectorAll('[data-d]').forEach(b=>b.addEventListener('click',()=>
 $('acc').addEventListener('change',e=>{ accents=e.target.checked; store.settings.accents=accents; save(); reset(); });
 $('restart').addEventListener('click', reset);
 function setTrans(t){ trans=t; gloss=t==='under'; store.settings.trans=t; save(); field.classList.toggle('nogloss',!gloss); document.querySelectorAll('[data-t]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.t===t))); }
-document.querySelectorAll('[data-t]').forEach(b=>b.addEventListener('click',()=>{ setTrans(b.dataset.t); reset(); renderStats(); }));
+document.querySelectorAll('[data-t]').forEach(b=>b.addEventListener('click',()=>{ setTrans(b.dataset.t); showVoicePick(); reset(); renderStats(); }));
 setTrans(trans);
-function setVoice(m){ voiceMode=m; store.settings.voice=m; save(); document.querySelectorAll('[data-v]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===m))); if(m==='off' && TTS) TTS.cancel(); }
+function setVoice(m){ voiceMode=m; store.settings.voice=m; save(); document.querySelectorAll('[data-v]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===m))); if(m==='off' && TTS) TTS.cancel(); showVoicePick(); }
 document.querySelectorAll('[data-v]').forEach(b=>b.addEventListener('click',()=>{ setVoice(b.dataset.v); if(b.dataset.v!=='off' && started) say(cur); focusInput(); }));
 if(TTS){ loadVoices(); TTS.addEventListener ? TTS.addEventListener('voiceschanged',loadVoices) : (TTS.onvoiceschanged=loadVoices); }
 else { $('voiceNote').textContent='not supported in this browser'; }
+$('voiceSel').addEventListener('change', e=>pickVoice(e.target, voiceKey(), false));
+$('enVoiceSel').addEventListener('change', e=>pickVoice(e.target, 'en', true));
+['voiceSel','enVoiceSel'].forEach(id=>$(id).addEventListener('keydown', e=>e.stopPropagation()));
 setVoice(voiceMode);
 const LET = c => ['Key'+c, c.toLowerCase()];
 const QP='QWERTYUIOP'.split('').map(LET), AL='ASDFGHJKL'.split('').map(LET), ZM='ZXCVBNM'.split('').map(LET);
