@@ -1,0 +1,999 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<title>Language Typing Test</title>
+<meta name="description" content="Typing practice for Greek and Portuguese, with translations, personal bests and word stats.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%227%22 fill=%22%231d4e9e%22/%3E%3Ctext x=%2216%22 y=%2224%22 font-size=%2222%22 text-anchor=%22middle%22 fill=%22white%22 font-family=%22Georgia,serif%22%3E%CE%A4%3C/text%3E%3C/svg%3E">
+</head><body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=GFS+Didot&family=Anonymous+Pro:wght@400;700&family=Literata:opsz,wght@7..72,400;7..72,500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+/* Layout: one centred column — mode bar, three-line word field, then results + personal record below */
+:root{
+  --bg:#eef1f4; --surface:#ffffff; --fg:#17202e; --muted:#6b7686; --faint:#c9d0da;
+  --accent:#1d4e9e; --accent-2:#b58a2a; --bad:#c23a34; --extra:#8e2a26;
+  --display:"GFS Didot","Literata",Georgia,serif;
+  --text:"Literata","Noto Serif",Georgia,serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --type:"Anonymous Pro","Courier New",Courier,monospace;
+  --ok:#2f7d4f;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0e141d; --surface:#151d29; --fg:#e3e8ef; --muted:#8793a5; --faint:#2b3646;
+  --accent:#7aa6ec; --accent-2:#d9b25a; --bad:#ef6a62; --extra:#b2433d; --ok:#6cc08b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e141d; --surface:#151d29; --fg:#e3e8ef; --muted:#8793a5; --faint:#2b3646;
+  --accent:#7aa6ec; --accent-2:#d9b25a; --bad:#ef6a62; --extra:#b2433d; --ok:#6cc08b; color-scheme:dark}
+html,body{background:var(--bg);color:var(--fg)}
+body{font-family:var(--text);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 64px}
+.wrap{max-width:880px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+header{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:12px}
+h1{font-family:var(--display);font-weight:400;font-size:2.1rem;margin:0;letter-spacing:.01em}
+h1 span{color:var(--accent)}
+.sub{font-family:var(--mono);font-size:.78rem;color:var(--muted);letter-spacing:.04em}
+h2{font-family:var(--display);font-weight:400;font-size:1.45rem;margin:0}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-family:var(--mono);font-size:.82rem}
+.seg{display:inline-flex;background:var(--surface);border:1px solid var(--faint);border-radius:8px;padding:3px}
+.seg button,.btn{font:inherit;color:var(--muted);background:none;border:0;padding:6px 12px;border-radius:6px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--bg)}
+.controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.cbtn{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:.8rem;color:var(--muted);background:var(--surface);border:1px solid var(--faint);border-radius:8px;padding:7px 12px;cursor:pointer}
+.cbtn:hover{color:var(--fg);border-color:var(--muted)}
+.cbtn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.hint{align-items:center}
+.cbtn.hb{padding:3px 8px;gap:6px;font-size:.75rem}
+.cbtn.hb svg{width:14px;height:14px}
+.cbtn[aria-pressed="true"]{color:var(--accent);border-color:var(--accent)}
+.seg button:hover:not([aria-pressed="true"]),.btn:hover{color:var(--fg)}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.toggle{display:inline-flex;align-items:center;gap:8px;cursor:pointer;color:var(--muted);user-select:none;padding:6px 4px}
+.toggle input{position:absolute;opacity:0;pointer-events:none}
+.sw{width:34px;height:20px;border-radius:10px;background:var(--faint);position:relative;transition:background .15s}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:var(--surface);transition:transform .15s}
+.toggle input:checked + .sw{background:var(--accent)}
+.toggle input:checked + .sw::after{transform:translateX(14px)}
+.toggle input:focus-visible + .sw{outline:2px solid var(--accent);outline-offset:2px}
+.toggle b{font-family:var(--text);font-weight:500;color:var(--fg);font-size:1rem}
+.spacer{flex:1}
+.live{display:flex;gap:22px;font-family:var(--mono);align-items:baseline;min-height:2.2rem}
+.live .t{font-size:1.9rem;color:var(--accent);font-variant-numeric:tabular-nums}
+.live .w{font-size:1rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.stage{position:relative;cursor:text}
+.field{position:relative;height:calc(1.9rem * 2.15 * 3);overflow:hidden;font-family:var(--type);font-size:1.9rem;line-height:2.15;letter-spacing:.01em;transition:filter .2s}
+.words{display:flex;flex-wrap:wrap;column-gap:1ch;position:relative;transition:transform .15s ease}
+.word{display:inline-flex;flex-direction:column;align-items:center;white-space:nowrap;color:var(--muted);opacity:.7;line-height:1.45;height:2.15em}
+.wt{display:block;border-bottom:2px solid transparent}
+.g{display:block;width:0;min-width:100%;margin-top:3px;text-align:center;font-family:var(--mono);font-size:.36em;line-height:1.1;letter-spacing:0;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.word.cur{opacity:1}
+.word.cur .g{color:var(--accent)}
+.word.en{color:var(--accent-2);font-style:italic}
+.word.en .l.ok{color:var(--accent-2)}
+.word.masked .wt{color:transparent;border-bottom:2px dashed color-mix(in srgb,var(--accent-2) 55%,transparent)}
+.word.masked .wt .l{color:transparent!important}
+.field.nogloss .g{display:none}
+.field.nogloss .word{height:1.7em}
+.field.nogloss{height:calc(1.9rem * 1.7 * 3)}
+.word.done{opacity:.5}
+.word.done .l.ok{font-weight:400}
+.word.err .wt{border-bottom-color:color-mix(in srgb,var(--bad) 60%,transparent)}
+.word.done .l.miss{color:var(--muted);text-decoration:underline dotted var(--bad);text-underline-offset:.15em}
+.l.ok{color:var(--fg);font-weight:700}
+.l.bad{color:var(--bad)}
+.l.x{color:var(--extra);opacity:.85}
+.caret{position:absolute;width:2px;height:1.35em;background:var(--accent-2);border-radius:1px;transition:left .08s linear,top .08s linear;font-size:1.9rem}
+.caret.dead{background:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 30%,transparent)}
+.caret.idle{animation:blink 1s step-end infinite}
+@keyframes blink{50%{opacity:0}}
+.stage.blur .field{filter:blur(5px);opacity:.6}
+.overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.9rem;color:var(--fg)}
+#hidden{position:absolute;opacity:0;left:0;top:0;width:1px;height:1px;border:0;padding:0}
+.hint{font-family:var(--mono);font-size:.75rem;color:var(--muted);display:flex;gap:18px;flex-wrap:wrap}
+kbd{font-family:var(--mono);border:1px solid var(--faint);border-bottom-width:2px;border-radius:4px;padding:0 5px;background:var(--surface);color:var(--fg)}
+.panel{background:var(--surface);border:1px solid var(--faint);border-radius:12px;padding:22px;display:flex;flex-direction:column;gap:18px}
+.result-top{display:flex;gap:28px;flex-wrap:wrap;align-items:flex-end}
+.big{display:flex;flex-direction:column}
+.lab{font-family:var(--mono);font-size:.7rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
+.big .v{font-family:var(--display);font-size:3.6rem;line-height:1;color:var(--accent);font-variant-numeric:tabular-nums}
+.big.sm .v{font-size:2.2rem;color:var(--fg)}
+.pb{font-family:var(--mono);font-size:.75rem;color:var(--bg);background:var(--accent-2);border-radius:999px;padding:3px 10px;align-self:center}
+.chartbox{position:relative;height:240px;min-width:0}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:14px}
+.facts div{display:flex;flex-direction:column;gap:3px;min-width:0}
+.facts .v{font-family:var(--mono);font-size:1.05rem;font-variant-numeric:tabular-nums}
+.bests{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--faint);border:1px solid var(--faint);border-radius:10px;overflow:hidden}
+.bests div{background:var(--surface);padding:14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.bests .v{font-family:var(--display);font-size:2rem;line-height:1.05;font-variant-numeric:tabular-nums}
+.bests .m{font-family:var(--mono);font-size:.72rem;color:var(--muted);font-variant-numeric:tabular-nums}
+@media (max-width:620px){.bests{grid-template-columns:repeat(2,1fr)}.field{font-size:1.45rem;height:calc(1.45rem*2.15*3)}.field.nogloss{height:calc(1.45rem*1.7*3)}.caret{font-size:1.45rem}}
+.kb{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:8px;border:1px solid var(--faint);background:var(--surface);color:var(--muted)}
+.kb .dot{width:8px;height:8px;border-radius:50%;background:var(--faint)}
+.kb[data-s="greek"] .dot{background:var(--ok)}
+.kb[data-s="greek"]{color:var(--fg)}
+.kb[data-s="mapped"] .dot{background:var(--accent)}
+.kb[data-s="mapped"]{color:var(--fg)}
+.kb[data-s="latin"] .dot{background:var(--bad)}
+.kb[data-s="latin"]{color:var(--bad);border-color:var(--bad)}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.8rem;font-variant-numeric:tabular-nums}
+th{text-align:left;font-weight:400;color:var(--muted);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;padding:6px 10px;border-bottom:1px solid var(--faint)}
+td{padding:7px 10px;border-bottom:1px solid var(--faint);white-space:nowrap}
+td.n,th.n{text-align:right}
+.rowhead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.danger{color:var(--bad)}
+.vsel{font:inherit;font-size:.78rem;color:var(--fg);background:var(--surface);border:1px solid var(--faint);border-radius:8px;padding:6px 8px;max-width:190px}
+.vsel[hidden]{display:none}
+.chip{display:inline-block;padding:1px 8px;border-radius:999px;border:1px solid var(--faint);font-size:.75rem}
+.chip.on{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.chip.off{color:var(--muted)}
+.empty{color:var(--muted);font-size:.95rem}
+.paused{font-family:var(--mono);font-size:.8rem;color:var(--bg);background:var(--accent-2);border-radius:999px;padding:3px 10px;align-self:center}
+.live .t.dim{opacity:.45}
+.filters{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
+.fgroup{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.fgroup .lab{margin-right:2px}
+.fchip{font-family:var(--mono);font-size:.75rem;padding:4px 10px;border-radius:999px;border:1px solid var(--accent);background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--fg);cursor:pointer}
+.fchip[aria-pressed="false"]{border-color:var(--faint);background:none;color:var(--muted);text-decoration:line-through}
+.fchip:hover{border-color:var(--accent)}
+.freset{font-family:var(--mono);font-size:.75rem;background:none;border:0;color:var(--accent);cursor:pointer;padding:4px}
+.kbd{display:flex;flex-direction:column;gap:5px;max-width:640px;width:100%;margin:4px auto 0;font-family:var(--type)}
+.krow{display:flex;gap:5px}
+.krow:nth-child(2){padding-left:3%}
+.krow:nth-child(3){padding-left:7%}
+.krow:nth-child(4){justify-content:center}
+.key{flex:1 1 0;min-width:0;max-width:3rem;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;border:1px solid var(--faint);border-bottom-width:3px;border-radius:6px;background:var(--surface);color:var(--fg);font-size:1.15rem;line-height:1;transition:background .08s,border-color .08s}
+.key.small{font-size:.8rem;color:var(--muted)}
+.key.space{flex:0 0 45%;max-width:none;aspect-ratio:auto;height:2.4rem;font-family:var(--mono);font-size:.7rem;color:var(--muted)}
+.key.kn{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.key.kd{background:var(--accent-2);border-color:var(--accent-2);color:var(--bg)}
+.kbdnote{font-family:var(--mono);font-size:.72rem;color:var(--muted);text-align:center}
+.kbdnote i{display:inline-block;width:9px;height:9px;border-radius:2px;vertical-align:-1px;margin:0 4px 0 10px;font-style:normal}
+@media (max-width:620px){.key{font-size:.95rem;border-radius:4px}.kbd,.krow{gap:3px}}
+.wcsearch{font-family:var(--mono);max-width:240px;flex:1 1 180px;padding:7px 10px}
+td.wcw{font-family:var(--type);font-size:1rem}
+td.wcg{color:var(--muted);white-space:normal;min-width:120px}
+@media (prefers-reduced-motion:reduce){.words,.caret,.sw,.sw::after{transition:none}.caret.idle{animation:none}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div style="display:flex;flex-direction:column;gap:4px"><h1 id="h1">Ταχύτητα <span>·</span> Greek Typing</h1>
+    <div class="sub" id="sub">monotonic Greek · λέξεις ανά λεπτό</div></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><div class="seg" role="group" aria-label="Language" style="font-family:var(--mono);font-size:.82rem"><button data-lang="el">Ελληνικά</button><button data-lang="pt">Português</button></div>
+    <div class="seg" id="ptvWrap" role="group" aria-label="Portuguese variant" style="font-family:var(--mono);font-size:.82rem" hidden><button data-ptv="pt" title="European Portuguese">PT</button><button data-ptv="br" title="Brazilian Portuguese">BR</button></div></div>
+  </header>
+
+  <div class="bar">
+    <div class="seg" role="group" aria-label="Duration">
+      <button id="d30" data-d="30">30s</button>
+      <button id="d60" data-d="60">1 min</button>
+      <button id="d0" data-d="0" title="Endless: no time limit, nothing saved" aria-label="Endless">∞</button>
+    </div>
+    <label class="toggle" for="acc"><input type="checkbox" id="acc" checked><span class="sw"></span>Accents required</label>
+    <span class="bar" style="gap:8px"><span class="sub">Words</span><span class="seg" role="group" aria-label="Word level"><button data-lv="beginner">Beginner</button><button data-lv="intermediate">Intermediate</button><button data-lv="advanced">Advanced</button><button data-lv="all">All</button><button data-lv="category" id="catBtn">Category</button></span><select id="catSel" class="vsel" aria-label="Category" hidden></select></span>
+    <span class="bar" style="gap:8px"><span class="sub">Translations</span><span class="seg" role="group" aria-label="Translations"><button id="tOff" data-t="off">Off</button><button id="tUnder" data-t="under">Under</button><button id="tAfter" data-t="after">After</button><button id="tHidden" data-t="hidden" title="The translation stays hidden until you finish the Greek word">After hidden</button></span></span>
+    <span class="bar" style="gap:8px"><span class="sub">Voice</span><span class="seg" role="group" aria-label="Voice"><button data-v="off">Off</button><button data-v="on">On</button></span><span class="sub" id="voiceNote"></span></span>
+    <span class="spacer"></span>
+    <span class="kb" id="kb" data-s="unknown" role="status"><i class="dot"></i><span id="kbText">Keyboard: press a key</span></span>
+    <button class="btn" id="restart" title="Restart (Tab)">↻ restart</button>
+  </div>
+
+  <section id="testView" style="display:flex;flex-direction:column;gap:14px">
+    <div class="live"><span class="t" id="timer">30</span><span class="w" id="liveWpm"></span><span class="paused" id="pauseNote" hidden>Paused · keep typing to resume</span></div>
+    <div class="stage" id="stage">
+      <div class="field" id="field"><div class="words" id="words"></div><div class="caret idle" id="caret"></div></div>
+      <div class="overlay" id="overlay" hidden>Click or press any key to focus</div>
+      <input id="hidden" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Type here" lang="el">
+    </div>
+    <div class="hint"><span><kbd>Tab</kbd> restart</span><span id="endHint" hidden><kbd>Esc</kbd> end session</span><button class="cbtn hb" id="kbdBtn" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6" width="19" height="12" rx="2"/><path d="M6 10h.01M9.5 10h.01M13 10h.01M16.5 10h.01M6.5 14h.01M17.5 14h.01M9 14h6"/></svg>Show keyboard layout</button><span id="elHint"><kbd>;</kbd> then a vowel for the tonos · <kbd>Shift</kbd>+<kbd>;</kbd> for ϊ ϋ</span><span>Backspace into a wrong word to fix it</span></div>
+    <div id="kbdWrap" hidden><div class="kbd" id="kbd" aria-hidden="true"></div><div class="kbdnote" id="kbdNote"></div></div>
+  </section>
+
+  <section class="panel" id="resultView" hidden>
+    <div class="result-top">
+      <div class="big"><span class="lab">wpm</span><span class="v" id="rWpm">0</span></div>
+      <div class="big sm"><span class="lab">accuracy</span><span class="v" id="rAcc">0%</span></div>
+      <div class="big sm"><span class="lab">raw</span><span class="v" id="rRaw">0</span></div>
+      <span class="pb" id="rPb" hidden>New personal best</span>
+      <span class="spacer"></span>
+      <button class="btn" id="next" style="border:1px solid var(--faint)">Next test (Enter)</button>
+    </div>
+    <div class="chartbox"><canvas id="runChart" aria-label="WPM, raw speed and errors per second"></canvas></div>
+    <div class="facts">
+      <div><span class="lab">test</span><span class="v" id="rMode"></span></div>
+      <div><span class="lab">characters</span><span class="v" id="rChars" title="correct / incorrect / extra / missed"></span></div>
+      <div><span class="lab">consistency</span><span class="v" id="rCons"></span></div>
+      <div><span class="lab">words</span><span class="v" id="rWords"></span></div>
+      <div><span class="lab">errors / keystrokes</span><span class="v" id="rErr"></span></div>
+    </div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:16px">
+    <div class="rowhead"><h2>Personal bests</h2><span class="sub" id="syncNote">saved in this browser</span></div>
+    <div class="bests" id="bests"></div>
+  </section>
+
+  <section class="panel" id="wcPanel">
+    <div class="rowhead"><h2>Words typed</h2><span class="sub" id="wcNote">Saved in this browser</span></div>
+    <div class="facts">
+      <div><span class="lab">words typed, all time</span><span class="v" id="wcTotal">0</span></div>
+      <div><span class="lab">different words</span><span class="v" id="wcDistinct">0</span></div>
+      <div><span class="lab" id="wcSetLab">typed in current words</span><span class="v" id="wcSet">0</span></div>
+    </div>
+    <div class="filters">
+      <span class="seg" role="group" aria-label="Which words"><button data-wcs="set">Current words</button><button data-wcs="all">Everything typed</button></span>
+      <span class="seg" role="group" aria-label="Sort"><button data-wco="most">Most typed</button><button data-wco="least">Least typed</button></span>
+      <input id="wcSearch" class="vsel wcsearch" type="search" placeholder="Find a word or meaning" aria-label="Find a word" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Word</th><th>Meaning</th><th class="n">Typed</th><th class="n">Correct</th><th class="n">Acc</th></tr></thead>
+      <tbody id="wcBody"></tbody>
+    </table></div>
+    <span class="empty" id="wcMore"></span>
+  </section>
+
+  <section class="panel">
+    <div class="rowhead"><h2>Progress</h2><span class="sub" id="histCount"></span></div>
+    <div class="filters" id="filters"></div>
+    <div class="chartbox"><canvas id="histChart" aria-label="WPM over all saved tests"></canvas></div>
+    <div class="tablewrap"><table>
+      <thead><tr><th>When</th><th>Length</th><th>Accents</th><th class="n">WPM</th><th class="n">Raw</th><th class="n">Acc</th><th class="n">Cons.</th></tr></thead>
+      <tbody id="histBody"></tbody>
+    </table></div>
+    <div class="rowhead">
+      <span class="empty" id="histEmpty">Finish a test and it will show up here.</span>
+      <span><span class="sub" id="ioNote" role="status"></span><button class="btn" id="exportBtn" title="Download all your results and word stats as a file">Export stats</button><button class="btn" id="importBtn" title="Load a stats file exported from another browser">Import stats</button><input type="file" id="importFile" accept=".json,application/json" hidden><button class="btn danger" id="clear">Clear history</button><span id="confirmBox" hidden><span class="sub">Delete all results? </span><button class="btn danger" id="clearYes">Delete</button><button class="btn" id="clearNo">Keep</button></span></span>
+    </div>
+  </section>
+</div>
+
+<script>
+const WORDS_EL = `και το να είναι που με για δεν θα από στο τα η ο οι της του μια ένα αυτό έχει πολύ ήταν μου σου όταν μετά πριν τώρα εδώ εκεί σήμερα αύριο χθες καλά όλα τίποτα κάτι κάποιος άνθρωπος άνθρωποι γυναίκα άντρας παιδί παιδιά σπίτι δρόμος πόλη χώρα θάλασσα ουρανός ήλιος φεγγάρι νερό φωτιά αέρας γη βουνό δέντρο λουλούδι ζώο σκύλος γάτα πουλί ψάρι φαγητό ψωμί κρασί καφές τσάι γάλα φρούτα μήλο πρωί βράδυ νύχτα μέρα εβδομάδα μήνας χρόνος ώρα λεπτό δουλειά σχολείο βιβλίο γράμμα λέξη γλώσσα φίλος φίλη οικογένεια μητέρα πατέρας αδελφός αδελφή αγάπη ζωή ελπίδα χαρά φόβος καρδιά χέρι πόδι μάτι κεφάλι φωνή μουσική τραγούδι χορός ιστορία αλήθεια ψέμα ερώτηση απάντηση ιδέα πρόβλημα λύση αρχή τέλος κόσμος καιρός βροχή χιόνι άνεμος καλοκαίρι χειμώνας άνοιξη φθινόπωρο μεγάλος μικρός καλός κακός ωραίος νέος παλιός γρήγορα αργά εύκολο δύσκολο ζεστό κρύο λευκό μαύρο κόκκινο μπλε πράσινο κίτρινο βλέπω ακούω μιλάω γράφω διαβάζω τρώω πίνω πάω έρχομαι φεύγω μένω ξέρω θέλω μπορώ κάνω λέω δίνω παίρνω αγαπώ σκέφτομαι ζω δουλεύω παίζω τρέχω περπατώ κοιμάμαι ξυπνάω ανοίγω κλείνω ψάχνω βρίσκω χάνω κερδίζω ευχαριστώ παρακαλώ γεια ναι όχι ίσως πάντα ποτέ συχνά μαζί μόνος ακόμα ήδη μόνο επίσης όμως γιατί επειδή αλλά ή αν πώς πού ποιος τι πόσο νησί λιμάνι πλοίο αυτοκίνητο τρένο αεροπλάνο ταξίδι θέατρο αγορά εκκλησία πλατεία ελιά λάδι τυρί μέλι αλάτι ζάχαρη πρόσωπο όνειρο ψυχή σώμα δύναμη ελευθερία δημοκρατία φιλοσοφία μάθημα δάσκαλος μαθητής χαμόγελο τηλέφωνο υπολογιστής παράθυρο πόρτα τραπέζι καρέκλα κρεβάτι κουζίνα ρολόι δύο τρία τέσσερα πέντε έξι εφτά οκτώ εννιά δέκα εκατό χίλια πρώτος τελευταίος προϋπόθεση καινούργιος ακριβώς ανάμεσα απόψε λοιπόν μάλλον σιγά βοήθεια εικόνα χρώμα σελίδα ταινία φωτογραφία εφημερίδα γιαγιά παππούς θείος μωρό κορίτσι αγόρι ομάδα χωριό κήπος ποτάμι παραλία αστέρι σύννεφο`.split(/\s+/).filter(Boolean);
+
+const GLOSS_EL = {"και": "and", "το": "the", "να": "to", "είναι": "is", "που": "that", "με": "with", "για": "for", "δεν": "not", "θα": "will", "από": "from", "στο": "in", "τα": "the", "η": "the", "ο": "the", "οι": "the", "της": "her", "του": "his", "μια": "a", "ένα": "a", "αυτό": "this", "έχει": "has", "πολύ": "very", "ήταν": "was", "μου": "my", "σου": "your", "όταν": "when", "μετά": "after", "πριν": "before", "τώρα": "now", "εδώ": "here", "εκεί": "there", "σήμερα": "today", "αύριο": "tomorrow", "χθες": "yesterday", "καλά": "well", "όλα": "all", "τίποτα": "nothing", "κάτι": "something", "κάποιος": "someone", "άνθρωπος": "person", "άνθρωποι": "people", "γυναίκα": "woman", "άντρας": "man", "παιδί": "child", "παιδιά": "children", "σπίτι": "home", "δρόμος": "street", "πόλη": "city", "χώρα": "country", "θάλασσα": "sea", "ουρανός": "sky", "ήλιος": "sun", "φεγγάρι": "moon", "νερό": "water", "φωτιά": "fire", "αέρας": "air", "γη": "earth", "βουνό": "mountain", "δέντρο": "tree", "λουλούδι": "flower", "ζώο": "animal", "σκύλος": "dog", "γάτα": "cat", "πουλί": "bird", "ψάρι": "fish", "φαγητό": "food", "ψωμί": "bread", "κρασί": "wine", "καφές": "coffee", "τσάι": "tea", "γάλα": "milk", "φρούτα": "fruit", "μήλο": "apple", "πρωί": "morning", "βράδυ": "evening", "νύχτα": "night", "μέρα": "day", "εβδομάδα": "week", "μήνας": "month", "χρόνος": "year", "ώρα": "hour", "λεπτό": "minute", "δουλειά": "work", "σχολείο": "school", "βιβλίο": "book", "γράμμα": "letter", "λέξη": "word", "γλώσσα": "language", "φίλος": "friend", "φίλη": "friend", "οικογένεια": "family", "μητέρα": "mother", "πατέρας": "father", "αδελφός": "brother", "αδελφή": "sister", "αγάπη": "love", "ζωή": "life", "ελπίδα": "hope", "χαρά": "joy", "φόβος": "fear", "καρδιά": "heart", "χέρι": "hand", "πόδι": "foot", "μάτι": "eye", "κεφάλι": "head", "φωνή": "voice", "μουσική": "music", "τραγούδι": "song", "χορός": "dance", "ιστορία": "story", "αλήθεια": "truth", "ψέμα": "lie", "ερώτηση": "question", "απάντηση": "answer", "ιδέα": "idea", "πρόβλημα": "problem", "λύση": "solution", "αρχή": "beginning", "τέλος": "end", "κόσμος": "world", "καιρός": "weather", "βροχή": "rain", "χιόνι": "snow", "άνεμος": "wind", "καλοκαίρι": "summer", "χειμώνας": "winter", "άνοιξη": "spring", "φθινόπωρο": "autumn", "μεγάλος": "big", "μικρός": "small", "καλός": "good", "κακός": "bad", "ωραίος": "nice", "νέος": "new", "παλιός": "old", "γρήγορα": "quickly", "αργά": "slowly", "εύκολο": "easy", "δύσκολο": "difficult", "ζεστό": "warm", "κρύο": "cold", "λευκό": "white", "μαύρο": "black", "κόκκινο": "red", "μπλε": "blue", "πράσινο": "green", "κίτρινο": "yellow", "βλέπω": "see", "ακούω": "hear", "μιλάω": "speak", "γράφω": "write", "διαβάζω": "read", "τρώω": "eat", "πίνω": "drink", "πάω": "go", "έρχομαι": "come", "φεύγω": "leave", "μένω": "stay", "ξέρω": "know", "θέλω": "want", "μπορώ": "can", "κάνω": "do", "λέω": "say", "δίνω": "give", "παίρνω": "take", "αγαπώ": "love", "σκέφτομαι": "think", "ζω": "live", "δουλεύω": "work", "παίζω": "play", "τρέχω": "run", "περπατώ": "walk", "κοιμάμαι": "sleep", "ξυπνάω": "wake", "ανοίγω": "open", "κλείνω": "close", "ψάχνω": "search", "βρίσκω": "find", "χάνω": "lose", "κερδίζω": "win", "ευχαριστώ": "thanks", "παρακαλώ": "please", "γεια": "hi", "ναι": "yes", "όχι": "no", "ίσως": "maybe", "πάντα": "always", "ποτέ": "never", "συχνά": "often", "μαζί": "together", "μόνος": "alone", "ακόμα": "still", "ήδη": "already", "μόνο": "only", "επίσης": "also", "όμως": "however", "γιατί": "why", "επειδή": "because", "αλλά": "but", "ή": "or", "αν": "if", "πώς": "how", "πού": "where", "ποιος": "who", "τι": "what", "πόσο": "much", "νησί": "island", "λιμάνι": "harbour", "πλοίο": "ship", "αυτοκίνητο": "car", "τρένο": "train", "αεροπλάνο": "plane", "ταξίδι": "trip", "θέατρο": "theatre", "αγορά": "market", "εκκλησία": "church", "πλατεία": "square", "ελιά": "olive", "λάδι": "oil", "τυρί": "cheese", "μέλι": "honey", "αλάτι": "salt", "ζάχαρη": "sugar", "πρόσωπο": "face", "όνειρο": "dream", "ψυχή": "soul", "σώμα": "body", "δύναμη": "strength", "ελευθερία": "freedom", "δημοκρατία": "democracy", "φιλοσοφία": "philosophy", "μάθημα": "lesson", "δάσκαλος": "teacher", "μαθητής": "student", "χαμόγελο": "smile", "τηλέφωνο": "phone", "υπολογιστής": "computer", "παράθυρο": "window", "πόρτα": "door", "τραπέζι": "table", "καρέκλα": "chair", "κρεβάτι": "bed", "κουζίνα": "kitchen", "ρολόι": "clock", "δύο": "two", "τρία": "three", "τέσσερα": "four", "πέντε": "five", "έξι": "six", "εφτά": "seven", "οκτώ": "eight", "εννιά": "nine", "δέκα": "ten", "εκατό": "hundred", "χίλια": "thousand", "πρώτος": "first", "τελευταίος": "last", "προϋπόθεση": "condition", "καινούργιος": "new", "ακριβώς": "exactly", "ανάμεσα": "between", "απόψε": "tonight", "λοιπόν": "so", "μάλλον": "probably", "σιγά": "slowly", "βοήθεια": "help", "εικόνα": "picture", "χρώμα": "colour", "σελίδα": "page", "ταινία": "film", "φωτογραφία": "photo", "εφημερίδα": "paper", "γιαγιά": "grandma", "παππούς": "grandpa", "θείος": "uncle", "μωρό": "baby", "κορίτσι": "girl", "αγόρι": "boy", "ομάδα": "team", "χωριό": "village", "κήπος": "garden", "ποτάμι": "river", "παραλία": "beach", "αστέρι": "star", "σύννεφο": "cloud"};
+const GLOSS_PT = {"o": "the", "a": "the", "os": "the", "as": "the", "um": "a", "uma": "a", "de": "of", "em": "in", "que": "that", "e": "and", "é": "is", "não": "not", "com": "with", "para": "for", "por": "by", "se": "if", "mas": "but", "ou": "or", "como": "how", "mais": "more", "muito": "very", "já": "already", "ainda": "still", "também": "also", "só": "only", "sempre": "always", "nunca": "never", "hoje": "today", "amanhã": "tomorrow", "ontem": "yesterday", "agora": "now", "aqui": "here", "ali": "there", "onde": "where", "quando": "when", "porquê": "why", "quem": "who", "sim": "yes", "obrigado": "thanks", "olá": "hello", "adeus": "goodbye", "bom": "good", "mau": "bad", "grande": "big", "pequeno": "small", "novo": "new", "velho": "old", "bonito": "pretty", "feio": "ugly", "quente": "hot", "frio": "cold", "fácil": "easy", "difícil": "hard", "rápido": "fast", "devagar": "slowly", "casa": "house", "rua": "street", "cidade": "city", "país": "country", "mar": "sea", "praia": "beach", "rio": "river", "montanha": "mountain", "céu": "sky", "sol": "sun", "lua": "moon", "estrela": "star", "água": "water", "fogo": "fire", "terra": "earth", "ar": "air", "árvore": "tree", "flor": "flower", "cão": "dog", "gato": "cat", "pássaro": "bird", "peixe": "fish", "pão": "bread", "vinho": "wine", "café": "coffee", "chá": "tea", "leite": "milk", "queijo": "cheese", "maçã": "apple", "laranja": "orange", "açúcar": "sugar", "sal": "salt", "azeite": "oil", "comida": "food", "jantar": "dinner", "almoço": "lunch", "manhã": "morning", "tarde": "afternoon", "noite": "night", "dia": "day", "semana": "week", "mês": "month", "ano": "year", "hora": "hour", "minuto": "minute", "tempo": "time", "trabalho": "work", "escola": "school", "livro": "book", "carta": "letter", "palavra": "word", "língua": "language", "amigo": "friend", "amiga": "friend", "família": "family", "mãe": "mother", "pai": "father", "irmão": "brother", "irmã": "sister", "filho": "son", "filha": "daughter", "avó": "grandma", "avô": "grandpa", "criança": "child", "homem": "man", "mulher": "woman", "menino": "boy", "menina": "girl", "pessoa": "person", "gente": "people", "coração": "heart", "mão": "hand", "pé": "foot", "olho": "eye", "cabeça": "head", "voz": "voice", "música": "music", "canção": "song", "dança": "dance", "história": "story", "verdade": "truth", "mentira": "lie", "pergunta": "question", "resposta": "answer", "ideia": "idea", "problema": "problem", "começo": "beginning", "fim": "end", "mundo": "world", "chuva": "rain", "neve": "snow", "vento": "wind", "verão": "summer", "inverno": "winter", "primavera": "spring", "outono": "autumn", "branco": "white", "preto": "black", "vermelho": "red", "azul": "blue", "verde": "green", "amarelo": "yellow", "ver": "see", "ouvir": "hear", "falar": "speak", "escrever": "write", "ler": "read", "comer": "eat", "beber": "drink", "ir": "go", "vir": "come", "sair": "leave", "ficar": "stay", "saber": "know", "querer": "want", "poder": "can", "fazer": "do", "dizer": "say", "dar": "give", "tomar": "take", "amar": "love", "pensar": "think", "viver": "live", "trabalhar": "work", "jogar": "play", "correr": "run", "andar": "walk", "dormir": "sleep", "acordar": "wake", "abrir": "open", "fechar": "close", "procurar": "search", "encontrar": "find", "perder": "lose", "ganhar": "win", "gostar": "like", "comprar": "buy", "pagar": "pay", "esperar": "wait", "ajudar": "help", "aprender": "learn", "viajar": "travel", "cozinhar": "cook", "coisa": "thing", "nada": "nothing", "tudo": "all", "algo": "something", "alguém": "someone", "ninguém": "nobody", "saudade": "longing", "janela": "window", "porta": "door", "mesa": "table", "cadeira": "chair", "cama": "bed", "cozinha": "kitchen", "relógio": "clock", "telefone": "phone", "computador": "computer", "carro": "car", "comboio": "train", "avião": "plane", "barco": "boat", "viagem": "trip", "mercado": "market", "igreja": "church", "praça": "square", "rosto": "face", "sonho": "dream", "alma": "soul", "corpo": "body", "força": "strength", "liberdade": "freedom", "lição": "lesson", "professor": "teacher", "aluno": "student", "sorriso": "smile", "dois": "two", "três": "three", "quatro": "four", "cinco": "five", "seis": "six", "sete": "seven", "oito": "eight", "nove": "nine", "dez": "ten", "cem": "hundred", "mil": "thousand", "primeiro": "first", "último": "last", "ação": "action", "nação": "nation", "você": "you", "eu": "I", "ele": "he", "ela": "she", "nós": "we", "eles": "they", "meu": "my", "teu": "your", "seu": "his", "este": "this", "isso": "that", "então": "so", "depois": "after", "antes": "before", "talvez": "maybe", "juntos": "together", "sozinho": "alone", "porque": "because", "até": "until", "sobre": "about", "entre": "between", "sem": "without", "bem": "well", "cedo": "early", "longe": "far", "perto": "near", "feliz": "happy", "triste": "sad", "cansado": "tired", "caro": "expensive", "barato": "cheap", "cheio": "full", "vazio": "empty", "limpo": "clean", "sujo": "dirty", "nosso": "our", "lá": "there", "pouco": "little", "cerca": "about"};
+const LANGS = {
+  el:{name:'Greek', native:'Ελληνικά', words:WORDS_EL, gloss:GLOSS_EL, tts:'el-GR', vp:'el', h1:'Ταχύτητα <span>·</span> Greek Typing', sub:'monotonic Greek · λέξεις ανά λεπτό', input:'el'},
+  pt:{name:'Portuguese', native:'Português', words:Object.keys(GLOSS_PT), gloss:GLOSS_PT, tts:'pt-PT', vp:'pt', h1:'Velocidade <span>·</span> Portuguese Typing', sub:'European Portuguese · palavras por minuto', input:'pt'}
+};
+const EL_INT = {"απόφαση": "decision", "ευκαιρία": "chance", "εμπειρία": "experience", "σχέση": "relationship", "κοινωνία": "society", "οικονομία": "economy", "κυβέρνηση": "government", "εργασία": "labour", "υγεία": "health", "γιατρός": "doctor", "νοσοκομείο": "hospital", "φάρμακο": "medicine", "ασθένεια": "illness", "πόνος": "pain", "αποτέλεσμα": "result", "προσπάθεια": "effort", "επιτυχία": "success", "αποτυχία": "failure", "συζήτηση": "discussion", "γνώμη": "opinion", "άποψη": "view", "εξήγηση": "explanation", "παράδειγμα": "example", "διαφορά": "difference", "περιβάλλον": "environment", "ενέργεια": "energy", "τεχνολογία": "technology", "επιστήμη": "science", "έρευνα": "research", "πανεπιστήμιο": "university", "φοιτητής": "student", "εξετάσεις": "exams", "βαθμός": "grade", "μισθός": "salary", "λογαριασμός": "bill", "τράπεζα": "bank", "χρήματα": "money", "τιμή": "price", "έκπτωση": "discount", "εισιτήριο": "ticket", "αεροδρόμιο": "airport", "σταθμός": "station", "ξενοδοχείο": "hotel", "κράτηση": "booking", "διακοπές": "holidays", "συνάντηση": "meeting", "πρόσκληση": "invitation", "γιορτή": "celebration", "γάμος": "wedding", "γείτονας": "neighbour", "συνάδελφος": "colleague", "εταιρεία": "company", "διευθυντής": "director", "υπάλληλος": "employee", "πελάτης": "customer", "προϊόν": "product", "υπηρεσία": "service", "νόμος": "law", "δικαίωμα": "right", "υποχρέωση": "duty", "ασφάλεια": "safety", "κίνδυνος": "danger", "πόλεμος": "war", "ειρήνη": "peace", "σημαντικός": "important", "απαραίτητος": "necessary", "διαθέσιμος": "available", "ελεύθερος": "free", "απασχολημένος": "busy", "κουρασμένος": "tired", "θυμωμένος": "angry", "ευτυχισμένος": "happy", "λυπημένος": "sad", "περίεργος": "curious", "ήσυχος": "quiet", "επικίνδυνος": "dangerous", "ακριβός": "expensive", "φθηνός": "cheap", "εξηγώ": "explain", "αποφασίζω": "decide", "προσπαθώ": "try", "θυμάμαι": "remember", "ξεχνάω": "forget", "καταλαβαίνω": "understand", "συμφωνώ": "agree", "διαφωνώ": "disagree", "ελπίζω": "hope", "φοβάμαι": "fear", "πιστεύω": "believe", "χρειάζομαι": "need", "αλλάζω": "change", "συνεχίζω": "continue", "σταματάω": "stop", "ξεκινάω": "start", "τελειώνω": "finish", "ετοιμάζω": "prepare", "οργανώνω": "organise", "απαντώ": "answer", "ρωτάω": "ask", "περιμένω": "wait", "γυρίζω": "return", "ταξιδεύω": "travel", "αγοράζω": "buy", "πληρώνω": "pay", "μαγειρεύω": "cook", "καθαρίζω": "clean", "συνήθως": "usually", "αμέσως": "immediately", "τελικά": "finally", "δυστυχώς": "unfortunately", "ευτυχώς": "luckily", "σίγουρα": "surely", "πιθανόν": "possibly", "σχεδόν": "almost", "αρκετά": "enough", "καταστροφή": "disaster", "ανάπτυξη": "growth", "κρίση": "crisis"};
+const EL_ADV = {"ανεξαρτησία": "independence", "αξιοπρέπεια": "dignity", "υπευθυνότητα": "responsibility", "διαφάνεια": "transparency", "αλληλεγγύη": "solidarity", "ισορροπία": "balance", "αβεβαιότητα": "uncertainty", "προκατάληψη": "prejudice", "συνείδηση": "conscience", "φαντασία": "imagination", "νοσταλγία": "nostalgia", "μελαγχολία": "melancholy", "ειρωνεία": "irony", "αντίφαση": "contradiction", "υπόθεση": "hypothesis", "συμπέρασμα": "conclusion", "απόδειξη": "proof", "επιχείρημα": "argument", "διαπραγμάτευση": "negotiation", "συμβιβασμός": "compromise", "αντιπροσωπεία": "delegation", "νομοθεσία": "legislation", "φορολογία": "taxation", "πληθωρισμός": "inflation", "ανεργία": "unemployment", "μετανάστευση": "migration", "παγκοσμιοποίηση": "globalisation", "βιωσιμότητα": "sustainability", "ρύπανση": "pollution", "ανθεκτικότητα": "resilience", "προτεραιότητα": "priority", "αποτελεσματικότητα": "efficiency", "εμπιστοσύνη": "trust", "ευγνωμοσύνη": "gratitude", "ενσυναίσθηση": "empathy", "περιέργεια": "curiosity", "επιμονή": "persistence", "αφοσίωση": "devotion", "ταπεινότητα": "humility", "φιλοδοξία": "ambition", "εγωισμός": "selfishness", "αδιαφορία": "indifference", "απογοήτευση": "disappointment", "ενθουσιασμός": "enthusiasm", "αμηχανία": "awkwardness", "έκπληξη": "surprise", "ανακούφιση": "relief", "εξάντληση": "exhaustion", "αναπόφευκτος": "inevitable", "αμφιλεγόμενος": "controversial", "εντυπωσιακός": "impressive", "αξιόπιστος": "reliable", "αυθόρμητος": "spontaneous", "φιλόξενος": "hospitable", "ευαίσθητος": "sensitive", "επιπόλαιος": "shallow", "ειλικρινής": "sincere", "αδιάκριτος": "nosy", "συνειδητοποιώ": "realise", "αναγνωρίζω": "recognise", "αμφισβητώ": "question", "επιβεβαιώνω": "confirm", "διευκολύνω": "facilitate", "εκμεταλλεύομαι": "exploit", "αντιμετωπίζω": "face", "επηρεάζω": "influence", "προτιμώ": "prefer", "απολαμβάνω": "enjoy", "εγκαταλείπω": "abandon", "αναβάλλω": "postpone", "εξασφαλίζω": "secure", "συμμετέχω": "participate", "παραδέχομαι": "admit", "εκφράζω": "express", "διατηρώ": "maintain", "ενθαρρύνω": "encourage", "αποθαρρύνω": "discourage", "υποστηρίζω": "support", "ενδεχομένως": "possibly", "αναμφίβολα": "undoubtedly", "ουσιαστικά": "essentially", "ταυτόχρονα": "simultaneously", "επιπλέον": "moreover", "εντούτοις": "nevertheless", "ωστόσο": "however", "συνεπώς": "consequently", "προφανώς": "obviously", "κυριολεκτικά": "literally", "ιδιαίτερα": "especially", "αποκλειστικά": "exclusively", "αμοιβαία": "mutually", "φιλότιμο": "honour", "μεράκι": "passion", "κέφι": "gusto", "ευδαιμονία": "bliss", "δημοκρατία": "democracy", "φιλοσοφία": "philosophy", "προϋπόθεση": "condition"};
+const PT_INT = {"decisão": "decision", "oportunidade": "chance", "experiência": "experience", "relação": "relationship", "sociedade": "society", "economia": "economy", "governo": "government", "saúde": "health", "médico": "doctor", "hospital": "hospital", "remédio": "medicine", "doença": "illness", "dor": "pain", "resultado": "result", "esforço": "effort", "sucesso": "success", "fracasso": "failure", "conversa": "talk", "opinião": "opinion", "explicação": "explanation", "exemplo": "example", "diferença": "difference", "ambiente": "environment", "energia": "energy", "tecnologia": "technology", "ciência": "science", "pesquisa": "research", "universidade": "university", "estudante": "student", "exame": "exam", "nota": "grade", "salário": "salary", "conta": "bill", "banco": "bank", "dinheiro": "money", "preço": "price", "desconto": "discount", "aeroporto": "airport", "estação": "station", "hotel": "hotel", "reserva": "booking", "férias": "holidays", "reunião": "meeting", "convite": "invitation", "festa": "party", "casamento": "wedding", "vizinho": "neighbour", "colega": "colleague", "empresa": "company", "diretor": "director", "cliente": "customer", "produto": "product", "serviço": "service", "lei": "law", "direito": "right", "dever": "duty", "segurança": "safety", "perigo": "danger", "guerra": "war", "paz": "peace", "importante": "important", "necessário": "necessary", "disponível": "available", "livre": "free", "ocupado": "busy", "irritado": "annoyed", "curioso": "curious", "calmo": "calm", "perigoso": "dangerous", "explicar": "explain", "decidir": "decide", "tentar": "try", "lembrar": "remember", "esquecer": "forget", "entender": "understand", "concordar": "agree", "acreditar": "believe", "precisar": "need", "mudar": "change", "continuar": "continue", "parar": "stop", "começar": "start", "terminar": "finish", "preparar": "prepare", "organizar": "organise", "responder": "answer", "perguntar": "ask", "voltar": "return", "limpar": "clean", "alugar": "rent", "normalmente": "usually", "imediatamente": "immediately", "finalmente": "finally", "infelizmente": "unfortunately", "felizmente": "luckily", "certamente": "surely", "possivelmente": "possibly", "quase": "almost", "bastante": "enough", "apenas": "only", "enquanto": "while", "embora": "although"};
+const PT_ADV = {"independência": "independence", "dignidade": "dignity", "responsabilidade": "responsibility", "transparência": "transparency", "solidariedade": "solidarity", "equilíbrio": "balance", "incerteza": "uncertainty", "preconceito": "prejudice", "consciência": "conscience", "imaginação": "imagination", "nostalgia": "nostalgia", "melancolia": "melancholy", "ironia": "irony", "contradição": "contradiction", "hipótese": "hypothesis", "conclusão": "conclusion", "prova": "proof", "argumento": "argument", "negociação": "negotiation", "compromisso": "commitment", "legislação": "legislation", "imposto": "tax", "inflação": "inflation", "desemprego": "unemployment", "imigração": "immigration", "globalização": "globalisation", "sustentabilidade": "sustainability", "poluição": "pollution", "resiliência": "resilience", "prioridade": "priority", "eficiência": "efficiency", "confiança": "trust", "gratidão": "gratitude", "empatia": "empathy", "curiosidade": "curiosity", "persistência": "persistence", "dedicação": "devotion", "humildade": "humility", "ambição": "ambition", "egoísmo": "selfishness", "indiferença": "indifference", "desilusão": "disappointment", "entusiasmo": "enthusiasm", "constrangimento": "awkwardness", "surpresa": "surprise", "alívio": "relief", "exaustão": "exhaustion", "inevitável": "inevitable", "controverso": "controversial", "impressionante": "impressive", "confiável": "reliable", "espontâneo": "spontaneous", "hospitaleiro": "hospitable", "sensível": "sensitive", "superficial": "shallow", "sincero": "sincere", "intrometido": "nosy", "perceber": "realise", "reconhecer": "recognise", "questionar": "question", "confirmar": "confirm", "facilitar": "facilitate", "aproveitar": "enjoy", "enfrentar": "face", "influenciar": "influence", "preferir": "prefer", "abandonar": "abandon", "adiar": "postpone", "garantir": "secure", "participar": "participate", "admitir": "admit", "expressar": "express", "manter": "maintain", "encorajar": "encourage", "desanimar": "discourage", "apoiar": "support", "essencialmente": "essentially", "simultaneamente": "simultaneously", "contudo": "however", "todavia": "yet", "consequentemente": "consequently", "obviamente": "obviously", "literalmente": "literally", "especialmente": "especially", "exclusivamente": "exclusively", "mutuamente": "mutually", "desenvolvimento": "growth", "crise": "crisis", "catástrofe": "disaster", "desafio": "challenge", "esperança": "hope", "vontade": "will", "ameaça": "threat", "aquecimento": "warming", "desigualdade": "inequality", "cidadania": "citizenship"};
+const EL_BEG = WORDS_EL.filter(w=>!(w in EL_ADV) && !(w in EL_INT));
+Object.assign(GLOSS_EL, EL_INT, EL_ADV);
+const PT_ONLY = ['comboio','cão','porquê','teu'];
+const BR_EXTRA = {trem:'train', cachorro:'dog', oi:'hi', 'ônibus':'bus', legal:'cool', gente:'we'};
+const BR_ONLY = ['trem','cachorro','oi','ônibus','legal'];
+Object.assign(GLOSS_PT, {trem:'train', cachorro:'dog', oi:'hi', 'ônibus':'bus', legal:'cool'});
+const PT_BEG = Object.keys(GLOSS_PT).filter(w=>!(w in PT_INT) && !(w in PT_ADV));
+Object.assign(GLOSS_PT, PT_INT, PT_ADV);
+const LEVELS = {beginner:'Beginner', intermediate:'Intermediate', advanced:'Advanced', all:'All'};
+const CATS = {
+  alpha:{name:'Words starting with Α', words:{"αυγό": "egg", "άγαλμα": "statue", "αγανάκτηση": "outrage", "αγαπημένος": "beloved", "αγγελία": "ad", "άγγελος": "angel", "αγγίζω": "touch", "αγγούρι": "cucumber", "αγελάδα": "cow", "αγκαλιά": "hug", "αγκάθι": "thorn", "άγκυρα": "anchor", "αγνοώ": "ignore", "άγνωστος": "unknown", "αγορά": "market", "αγοράζω": "buy", "αγρός": "field", "αγρότης": "farmer", "αγώνας": "struggle", "αγωνία": "anxiety", "άδεια": "permission", "άδειος": "empty", "αδειάζω": "empty", "αδέρφια": "siblings", "αδικία": "injustice", "αδύνατος": "weak", "αέρας": "air", "αετός": "eagle", "αεροδρόμιο": "airport", "αθλητής": "athlete", "αθλητισμός": "sport", "αθώος": "innocent", "αίμα": "blood", "αίνιγμα": "riddle", "αίσθηση": "sense", "αισθάνομαι": "feel", "αισιόδοξος": "optimistic", "αίτηση": "application", "αιτία": "cause", "αιώνας": "century", "ακολουθώ": "follow", "ακούω": "hear", "ακρίβεια": "precision", "ακτή": "coast", "ακτίνα": "ray", "αλάτι": "salt", "αλεπού": "fox", "αλήθεια": "truth", "αληθινός": "real", "αλλαγή": "change", "αλλεργία": "allergy", "αλληλογραφία": "correspondence", "αλλιώς": "otherwise", "άλλος": "other", "άλογο": "horse", "άλμα": "jump", "αλυσίδα": "chain", "αμάξι": "car", "άμμος": "sand", "αμοιβή": "pay", "αμπέλι": "vineyard", "αμύγδαλο": "almond", "αμφιβολία": "doubt", "ανάβω": "light", "ανάγκη": "need", "ανακαλύπτω": "discover", "ανακοίνωση": "announcement", "ανάλυση": "analysis", "ανανάς": "pineapple", "ανάπαυση": "rest", "αναπνέω": "breathe", "ανάσα": "breath", "ανατολή": "east", "ανεβαίνω": "climb", "ανέκδοτο": "joke", "άνεση": "comfort", "ανεξάρτητος": "independent", "ανησυχώ": "worry", "ανιψιός": "nephew", "ανοιχτός": "open", "αντίο": "goodbye", "αντίθετος": "opposite", "αντικείμενο": "object", "αντίγραφο": "copy", "αξία": "value", "αξέχαστος": "unforgettable", "απαγορεύεται": "forbidden", "απαλός": "soft", "απέναντι": "across", "απλός": "simple", "απόγευμα": "afternoon", "αποθήκη": "storage", "αποκλείεται": "impossible", "απολύτως": "absolutely", "αποστολή": "mission", "αποσκευές": "luggage", "απότομος": "abrupt", "αράχνη": "spider", "αργία": "holiday", "αργότερα": "later", "αριθμός": "number", "αριστερά": "left", "αρκούδα": "bear", "αρνί": "lamb", "άρρωστος": "sick", "αρχαίος": "ancient", "αρχείο": "file", "αρχιτέκτονας": "architect", "άρωμα": "perfume", "ασανσέρ": "lift", "ασθενής": "patient", "άσπρος": "white", "αστείο": "joke", "αστυνομία": "police", "ασφαλής": "safe", "ατμόσφαιρα": "atmosphere", "ατύχημα": "accident", "αυγή": "dawn", "αύξηση": "increase", "αυλή": "yard", "αυτί": "ear", "αυτοκίνητο": "car", "αφήνω": "let", "αφίσα": "poster", "αφού": "since", "άχρηστος": "useless", "αγάπη": "love", "αδελφός": "brother", "αλλά": "but", "ανάμεσα": "between", "απάντηση": "answer", "αρχή": "beginning", "αστέρι": "star", "αύριο": "tomorrow", "αυτό": "this"}},
+  hp:{name:'Harry Potter vocabulary', words:{"μαγεία": "magic", "μάγος": "wizard", "μάγισσα": "witch", "μαγικός": "magical", "ραβδί": "wand", "ξόρκι": "spell", "κατάρα": "curse", "φίλτρο": "potion", "μαγεύω": "enchant", "γοητεία": "charm", "μεταμορφώνω": "transform", "μεταμόρφωση": "transformation", "εξαφανίζομαι": "disappear", "εμφανίζομαι": "appear", "αόρατος": "invisible", "πετάω": "fly", "σκούπα": "broomstick", "μανδύας": "cloak", "καζάνι": "cauldron", "βότανο": "herb", "φτερό": "feather", "κρύσταλλος": "crystal", "προφητεία": "prophecy", "μάντης": "seer", "όραμα": "vision", "ουλή": "scar", "αστραπή": "lightning", "αθανασία": "immortality", "αθάνατος": "immortal", "θνητός": "mortal", "ψυχή": "soul", "θεραπεύω": "heal", "δηλητήριο": "poison", "αντίδοτο": "antidote", "ελιξίριο": "elixir", "μυστήριο": "mystery", "κρυφός": "hidden", "σημάδι": "mark", "φυλαχτό": "amulet", "δαχτυλίδι": "ring", "μενταγιόν": "locket", "καθρέφτης": "mirror", "χάρτης": "map", "κουκουβάγια": "owl", "περγαμηνή": "parchment", "πένα": "quill", "μελάνι": "ink", "ημερολόγιο": "diary", "καπέλο": "hat", "σχολή": "school", "κοιτώνας": "dormitory", "τάξη": "classroom", "μάθημα": "lesson", "καθηγητής": "professor", "καθηγήτρια": "professor", "διευθυντής": "headmaster", "μαθητής": "pupil", "συμμαθητής": "classmate", "εξετάσεις": "exams", "βαθμός": "point", "τιμωρία": "detention", "κανόνας": "rule", "βιβλιοθήκη": "library", "αίθουσα": "hall", "τραπεζαρία": "dining hall", "πύργος": "tower", "σκάλα": "staircase", "διάδρομος": "corridor", "πορτρέτο": "portrait", "γήπεδο": "pitch", "αγώνας": "match", "ομάδα": "team", "κύπελλο": "cup", "νίκη": "victory", "ήττα": "defeat", "εργασία": "homework", "φύλακας": "keeper", "φρουρός": "guard", "τρένο": "train", "αποβάθρα": "platform", "βαλίτσα": "trunk", "στολή": "uniform", "κασκόλ": "scarf", "έμβλημα": "crest", "δράκος": "dragon", "φάντασμα": "ghost", "γίγαντας": "giant", "νάνος": "dwarf", "ξωτικό": "elf", "καλικάντζαρος": "goblin", "τρολ": "troll", "λυκάνθρωπος": "werewolf", "βρικόλακας": "vampire", "μονόκερος": "unicorn", "φοίνικας": "phoenix", "κένταυρος": "centaur", "γοργόνα": "mermaid", "αράχνη": "spider", "φίδι": "snake", "λιοντάρι": "lion", "ασβός": "badger", "αετός": "eagle", "κόρακας": "raven", "γάτα": "cat", "αρουραίος": "rat", "φρύνος": "toad", "ελάφι": "stag", "τέρας": "monster", "πλάσμα": "creature", "κάστρο": "castle", "δάσος": "forest", "λίμνη": "lake", "μπουντρούμι": "dungeon", "φυλακή": "prison", "σοφίτα": "attic", "θάλαμος": "chamber", "κρυψώνα": "hiding place", "σπηλιά": "cave", "νεκροταφείο": "graveyard", "τάφος": "grave", "χωριό": "village", "δρομάκι": "alley", "τράπεζα": "bank", "καλύβα": "hut", "θερμοκήπιο": "greenhouse", "πύλη": "gate", "σήραγγα": "tunnel", "τζάκι": "fireplace", "ντουλάπι": "cupboard", "κελί": "cell", "θάρρος": "courage", "γενναίος": "brave", "φόβος": "fear", "τρόμος": "terror", "κίνδυνος": "danger", "προδοσία": "betrayal", "προδότης": "traitor", "εχθρός": "enemy", "φιλία": "friendship", "αφοσίωση": "loyalty", "ελπίδα": "hope", "θυσία": "sacrifice", "θάνατος": "death", "πένθος": "grief", "εκδίκηση": "revenge", "μίσος": "hatred", "αγάπη": "love", "ζήλια": "jealousy", "ντροπή": "shame", "περηφάνια": "pride", "δύναμη": "power", "εξουσία": "authority", "σκοτάδι": "darkness", "φως": "light", "σκιά": "shadow", "κακό": "evil", "μάχη": "battle", "πόλεμος": "war", "ήρωας": "hero", "μοίρα": "fate", "πεπρωμένο": "destiny", "προστατεύω": "protect", "σώζω": "save", "κρύβω": "hide", "ανακαλύπτω": "discover", "κλέβω": "steal", "απειλή": "threat", "παγίδα": "trap", "μονομαχία": "duel", "ενέδρα": "ambush", "δραπετεύω": "escape", "απόδραση": "escape", "αιχμάλωτος": "prisoner", "κατάσκοπος": "spy", "συνωμοσία": "conspiracy", "μυστικό": "secret", "ψέμα": "lie", "αλήθεια": "truth", "θυμός": "anger", "ορφανός": "orphan", "θείος": "uncle", "θεία": "aunt", "ξάδερφος": "cousin", "νονός": "godfather", "κληρονομιά": "inheritance", "αίμα": "blood", "κουνάω": "wave", "ψιθυρίζω": "whisper", "ουρλιάζω": "scream", "τρέμω": "tremble", "σέρνομαι": "crawl", "σκαρφαλώνω": "climb", "πηδάω": "jump", "σπρώχνω": "push", "κλειδώνω": "lock", "ξεκλειδώνω": "unlock", "κατασκοπεύω": "spy", "εξερευνώ": "explore", "περιπλανιέμαι": "wander", "κρυφακούω": "eavesdrop", "δαγκώνω": "bite", "ματώνω": "bleed", "λιποθυμώ": "faint", "ονειρεύομαι": "dream", "ορκίζομαι": "swear", "προειδοποιώ": "warn", "προειδοποίηση": "warning", "εκπαιδεύω": "train"}, topic:true},
+  cook:{name:'Cooking & Housework', topic:true, words:{"κουζίνα": "kitchen", "μαγειρεύω": "cook", "συνταγή": "recipe", "συστατικό": "ingredient", "κατσαρόλα": "pot", "τηγάνι": "pan", "φούρνος": "oven", "ψυγείο": "fridge", "καταψύκτης": "freezer", "πιάτο": "plate", "ποτήρι": "glass", "φλιτζάνι": "cup", "κουτάλι": "spoon", "πιρούνι": "fork", "μαχαίρι": "knife", "κουταλάκι": "teaspoon", "μπολ": "bowl", "καπάκι": "lid", "σφουγγάρι": "sponge", "πλυντήριο": "washer", "πιατοπλυντήριο": "dishwasher", "απορρυπαντικό": "detergent", "σκούπα": "broom", "σφουγγαρίστρα": "mop", "ξεσκονίζω": "dust", "σκουπίζω": "sweep", "πλένω": "wash", "σιδερώνω": "iron", "σίδερο": "iron", "απλώνω": "hang", "διπλώνω": "fold", "ρούχα": "clothes", "σκουπίδια": "rubbish", "κάδος": "bin", "νεροχύτης": "sink", "βρύση": "tap", "πετσέτα": "towel", "τραπεζομάντιλο": "tablecloth", "κόβω": "cut", "ψιλοκόβω": "chop", "τρίβω": "grate", "ανακατεύω": "stir", "βράζω": "boil", "ψήνω": "bake", "τηγανίζω": "fry", "ζυμώνω": "knead", "ζύμη": "dough", "αλεύρι": "flour", "μαγιά": "yeast", "αυγό": "egg", "βούτυρο": "butter", "ξίδι": "vinegar", "πιπέρι": "pepper", "ρίγανη": "oregano", "σκόρδο": "garlic", "κρεμμύδι": "onion", "ντομάτα": "tomato", "πατάτα": "potato", "καρότο": "carrot", "λεμόνι": "lemon", "μαϊντανός": "parsley", "άνηθος": "dill", "κανέλα": "cinnamon", "ρύζι": "rice", "μακαρόνια": "pasta", "κιμάς": "mince", "κοτόπουλο": "chicken", "κρέας": "meat", "σάλτσα": "sauce", "σούπα": "soup", "σαλάτα": "salad", "γλυκό": "dessert", "κέικ": "cake", "ζωμός": "broth", "μερίδα": "portion", "φλούδα": "peel", "ξεφλουδίζω": "peel", "κουτάλα": "ladle", "σουρωτήρι": "colander", "ταψί": "tray", "μίξερ": "mixer", "ζυγαριά": "scale", "ποδιά": "apron", "γάντια": "gloves", "συρτάρι": "drawer", "ντουλάπι": "cupboard", "ράφι": "shelf", "χαρτοπετσέτα": "napkin", "στρώνω": "set", "μαζεύω": "collect", "τακτοποιώ": "tidy", "καθαρίζω": "clean", "μπάνιο": "bathroom", "σαπούνι": "soap", "χλωρίνη": "bleach", "λάδι": "oil", "αλάτι": "salt", "ζάχαρη": "sugar", "μέλι": "honey", "τυρί": "cheese", "ψωμί": "bread", "γάλα": "milk", "φαγητό": "food"}},
+  cars:{name:'Cars & Travel', topic:true, words:{"αυτοκίνητο": "car", "τρένο": "train", "πλοίο": "ship", "αεροπλάνο": "plane", "αεροδρόμιο": "airport", "σταθμός": "station", "εισιτήριο": "ticket", "ταξίδι": "trip", "ξενοδοχείο": "hotel", "κράτηση": "booking", "λεωφορείο": "bus", "μετρό": "metro", "ταξί": "taxi", "μηχανή": "motorbike", "ποδήλατο": "bicycle", "φορτηγό": "truck", "οδηγός": "driver", "οδηγώ": "drive", "δίπλωμα": "licence", "τιμόνι": "steering", "φρένο": "brake", "γκάζι": "accelerator", "συμπλέκτης": "clutch", "ταχύτητα": "speed", "κινητήρας": "engine", "λάστιχο": "tyre", "ρόδα": "wheel", "προφυλακτήρας": "bumper", "καθρέφτης": "mirror", "πορτμπαγκάζ": "boot", "καπό": "bonnet", "ζώνη": "seatbelt", "βενζίνη": "petrol", "πετρέλαιο": "diesel", "συνεργείο": "garage", "παρκάρω": "park", "πάρκινγκ": "parking", "διόδια": "tolls", "αυτοκινητόδρομος": "motorway", "κίνηση": "traffic", "φανάρι": "light", "διασταύρωση": "junction", "στροφή": "bend", "γέφυρα": "bridge", "σήραγγα": "tunnel", "πινακίδα": "sign", "χάρτης": "map", "πυξίδα": "compass", "κατεύθυνση": "direction", "βόρεια": "north", "νότια": "south", "ανατολικά": "east", "δυτικά": "west", "αποσκευές": "luggage", "βαλίτσα": "suitcase", "σακίδιο": "backpack", "διαβατήριο": "passport", "ταυτότητα": "identity", "βίζα": "visa", "τελωνείο": "customs", "πτήση": "flight", "πιλότος": "pilot", "αναχώρηση": "departure", "άφιξη": "arrival", "καθυστέρηση": "delay", "ακύρωση": "cancellation", "πύλη": "gate", "προσγείωση": "landing", "απογείωση": "takeoff", "θέση": "seat", "βαγόνι": "carriage", "αποβάθρα": "platform", "ράγες": "rails", "δρομολόγιο": "route", "ανταπόκριση": "connection", "φέρι": "ferry", "καμπίνα": "cabin", "κατάστρωμα": "deck", "ενοικίαση": "rental", "ξεναγός": "guide", "τουρίστας": "tourist", "αξιοθέατα": "sights", "προορισμός": "destination", "διαμονή": "stay", "δωμάτιο": "room", "ρεσεψιόν": "reception", "κλειδί": "key", "χιλιόμετρο": "kilometre", "πρόστιμο": "fine", "ατύχημα": "accident", "ασφάλεια": "insurance", "προσπερνώ": "overtake", "φρενάρω": "brake", "επιβάτης": "passenger", "πεζός": "pedestrian", "πεζοδρόμιο": "pavement", "λιμάνι": "harbour", "δρόμος": "road", "ταξιδεύω": "travel", "διακοπές": "holidays"}}
+};
+const EXTRA_EL = {"βάζο": "vase", "βάζω": "put", "βαθύς": "deep", "βάθος": "depth", "βαμβάκι": "cotton", "βάρκα": "boat", "βαρετός": "boring", "βάρος": "weight", "βαρύς": "heavy", "βασιλιάς": "king", "βασίλισσα": "queen", "βάση": "base", "βασικός": "basic", "βάφω": "paint", "βγαίνω": "exit", "βγάζω": "remove", "βελόνα": "needle", "βελτίωση": "improvement", "βέβαια": "certainly", "βεράντα": "veranda", "βήμα": "step", "βήχας": "cough", "βιάζομαι": "hurry", "βιαστικός": "hasty", "βιβλιοθήκη": "library", "βίντεο": "video", "βιολί": "violin", "βιτρίνα": "display", "βλάκας": "idiot", "βλάβη": "damage", "βλέμμα": "gaze", "βοηθώ": "help", "βόλτα": "walk", "βουλή": "parliament", "βούρτσα": "brush", "βουτάω": "dive", "βραβείο": "award", "βραδιά": "evening", "βράχος": "rock", "βραχιόλι": "bracelet", "βρεγμένος": "wet", "βρέχει": "raining", "βρόμικος": "dirty", "βρώμα": "stench", "βυθός": "seabed", "βωμός": "altar", "βάτραχος": "frog", "βαλκόνι": "balcony", "βούληση": "will", "βιολογία": "biology", "βιογραφία": "biography", "γαμπρός": "groom", "γαρίδα": "shrimp", "γειτονιά": "neighbourhood", "γελάω": "laugh", "γέλιο": "laughter", "γεμάτος": "full", "γεμίζω": "fill", "γενέθλια": "birthday", "γενιά": "generation", "γενικός": "general", "γεννιέμαι": "born", "γέννηση": "birth", "γέρος": "elder", "γερός": "sturdy", "γεύμα": "meal", "γεύση": "taste", "γεωγραφία": "geography", "γεωργία": "agriculture", "γήπεδο": "stadium", "γιαούρτι": "yoghurt", "γιορτάζω": "celebrate", "γιος": "son", "γκρεμός": "cliff", "γκρίζος": "grey", "γλάρος": "seagull", "γλείφω": "lick", "γλέντι": "feast", "γλιστράω": "slip", "γνωρίζω": "know", "γνώση": "knowledge", "γνωστός": "known", "γόνατο": "knee", "γονείς": "parents", "γούνα": "fur", "γουρούνι": "pig", "γραβάτα": "tie", "γραμματέας": "secretary", "γραμμή": "line", "γρασίδι": "grass", "γραφείο": "office", "γραφή": "writing", "γρίπη": "flu", "γυαλί": "glass", "γυαλιά": "glasses", "γυμναστική": "exercise", "γυρνάω": "turn", "γύρος": "round", "γωνία": "corner", "γάιδαρος": "donkey", "γεωμετρία": "geometry", "δαγκώνω": "bite", "δάκρυ": "tear", "δάχτυλο": "finger", "δανείζω": "lend", "δάνειο": "loan", "δάσος": "forest", "δείπνο": "dinner", "δείχνω": "show", "δελφίνι": "dolphin", "δέμα": "parcel", "δένω": "tie", "δεξιά": "right", "δέρμα": "skin", "δέχομαι": "accept", "δηλαδή": "namely", "δήμαρχος": "mayor", "δημόσιος": "public", "δημοσιογράφος": "journalist", "διάβολος": "devil", "διαδρομή": "journey", "διάθεση": "mood", "διακόπτης": "switch", "διάλειμμα": "break", "διάλογος": "dialogue", "διαμέρισμα": "flat", "διαφήμιση": "advert", "διάσημος": "famous", "διαφορετικός": "different", "διδάσκω": "teach", "διηγούμαι": "narrate", "δικαστήριο": "court", "δίκαιος": "fair", "δίκιο": "right", "δικός": "own", "διορθώνω": "correct", "διπλός": "double", "δίψα": "thirst", "διψάω": "thirsty", "διώχνω": "expel", "δοκιμάζω": "try", "δολοφόνος": "murderer", "δόντι": "tooth", "δροσιά": "coolness", "δροσερός": "cool", "δυνατός": "strong", "δυστυχία": "misery", "δώρο": "gift", "δωρεάν": "free", "δημιουργώ": "create", "διαγωνισμός": "contest", "διεύθυνση": "address", "δίσκος": "disc", "εαυτός": "self", "εγγονός": "grandson", "εγώ": "I", "έδαφος": "ground", "εθνικός": "national", "έθιμο": "custom", "είδηση": "news", "είδος": "kind", "είσοδος": "entrance", "εκδρομή": "excursion", "εκλογές": "elections", "έκθεση": "exhibition", "εκπαίδευση": "education", "ελάχιστος": "minimal", "ελέφαντας": "elephant", "ελληνικά": "Greek", "Ελλάδα": "Greece", "ελαφρύς": "light", "έλεγχος": "control", "ελέγχω": "check", "εμπόριο": "trade", "εμφάνιση": "appearance", "ενδιαφέρον": "interest", "ενήλικας": "adult", "ενθύμιο": "souvenir", "ενοχλώ": "bother", "ένταση": "tension", "εντάξει": "okay", "εντολή": "command", "έντομο": "insect", "εξαιρετικός": "excellent", "εξάσκηση": "practice", "εξετάζω": "examine", "έξοδος": "exit", "εξοχή": "countryside", "εξωτερικό": "abroad", "επάγγελμα": "profession", "επανάσταση": "revolution", "επαφή": "contact", "επιθυμία": "desire", "επικοινωνία": "communication", "επιλογή": "choice", "επισκέπτομαι": "visit", "επίσκεψη": "visit", "επιστρέφω": "return", "επιτρέπεται": "allowed", "επόμενος": "next", "εποχή": "season", "εργαλείο": "tool", "έργο": "work", "έρωτας": "love", "εστιατόριο": "restaurant", "εσύ": "you", "έτοιμος": "ready", "ετικέτα": "label", "έτος": "year", "ευγενικός": "polite", "ευθεία": "straight", "ευθύνη": "responsibility", "ευκολία": "ease", "Ευρώπη": "Europe", "ευχή": "wish", "εχθρός": "enemy", "ζακέτα": "cardigan", "ζαλίζομαι": "dizzy", "ζάλη": "dizziness", "ζαμπόν": "ham", "ζαρκάδι": "deer", "ζάρι": "dice", "ζέστη": "heat", "ζευγάρι": "couple", "ζήλια": "jealousy", "ζηλεύω": "envy", "ζημιά": "damage", "ζητάω": "ask", "ζήτημα": "issue", "ζητιάνος": "beggar", "ζόρι": "trouble", "ζούγκλα": "jungle", "ζουμί": "juice", "ζωγραφίζω": "paint", "ζωγράφος": "painter", "ζωγραφική": "painting", "ζωντανός": "alive", "ζεσταίνω": "heat", "ζωηρός": "lively", "ζαχαροπλαστείο": "patisserie", "ζυμαρικά": "pasta", "ζεστασιά": "warmth", "ζιζάνιο": "weed", "ζουζούνι": "bug", "ηθοποιός": "actor", "ηθική": "ethics", "ηλικία": "age", "ηλικιωμένος": "elderly", "ηλιοβασίλεμα": "sunset", "ηλιόλουστος": "sunny", "ηλεκτρικός": "electric", "ηλεκτρισμός": "electricity", "ηλίθιος": "stupid", "ήμερος": "tame", "ημέρα": "day", "ημερομηνία": "date", "ημερολόγιο": "calendar", "ήπειρος": "continent", "ήρεμος": "calm", "ηρεμία": "calmness", "ήρωας": "hero", "ηρωίδα": "heroine", "ήσυχα": "quietly", "ησυχία": "silence", "ήττα": "defeat", "ηχείο": "speaker", "ήχος": "sound", "ηφαίστειο": "volcano", "ηγέτης": "leader", "ηδονή": "pleasure", "ηλιοθεραπεία": "sunbathing", "ηθικός": "moral", "ημίχρονο": "halftime", "ηλεκτρονικός": "electronic", "θαλάσσιος": "marine", "θάμνος": "bush", "θάνατος": "death", "θαρραλέος": "brave", "θάρρος": "courage", "θαύμα": "miracle", "θαυμάζω": "admire", "θαυμάσιος": "wonderful", "θεά": "goddess", "θεός": "god", "θέαμα": "spectacle", "θέληση": "will", "θέμα": "topic", "θεμέλιο": "foundation", "θεραπεία": "therapy", "θερμοκρασία": "temperature", "θερμός": "warm", "θησαυρός": "treasure", "θηρίο": "beast", "θηλυκός": "female", "θλίψη": "sorrow", "θόρυβος": "noise", "θορυβώδης": "noisy", "θρησκεία": "religion", "θρόνος": "throne", "θυμός": "anger", "θύμα": "victim", "θύελλα": "storm", "θυμίζω": "remind", "θυσία": "sacrifice", "θάβω": "bury", "θέρμανση": "heating", "θεωρία": "theory", "θεωρώ": "consider", "θήκη": "case", "θολός": "blurry", "θράσος": "audacity", "θυμάρι": "thyme", "θέλημα": "errand", "ιατρικός": "medical", "ιδανικός": "ideal", "ιδιαίτερος": "special", "ιδιοκτήτης": "owner", "ιδιότητα": "property", "ίδιος": "same", "ιδιωτικός": "private", "ίδρυμα": "foundation", "ιδρώτας": "sweat", "ιερέας": "priest", "ιερός": "holy", "ικανός": "able", "ικανοποίηση": "satisfaction", "ικανότητα": "ability", "ιός": "virus", "ίσιος": "straight", "ισόγειο": "ground", "ισότητα": "equality", "ιστιοπλοΐα": "sailing", "ιστοσελίδα": "website", "ισχυρός": "powerful", "ίχνος": "trace", "ιππέας": "rider", "ιππότης": "knight", "ίριδα": "iris", "ιδιοφυΐα": "genius", "ιδρύω": "found", "ισπανικά": "Spanish", "Ιταλία": "Italy", "ιταλικά": "Italian", "ιστορικός": "historical", "ισοπαλία": "draw", "ινστιτούτο": "institute", "ιατρείο": "clinic", "ίνα": "fibre", "ιμάντας": "strap", "ιπτάμενος": "flying", "καβγάς": "quarrel", "καθαρός": "clean", "κάθομαι": "sit", "καθηγητής": "professor", "καθήκον": "duty", "καθένας": "everyone", "καθόλου": "none", "καθημερινός": "daily", "κακία": "malice", "καλάθι": "basket", "καλημέρα": "hello", "καληνύχτα": "goodnight", "καλοσύνη": "kindness", "καλύτερος": "better", "καμήλα": "camel", "καμπάνα": "bell", "κανάλι": "channel", "κανόνας": "rule", "κάπνισμα": "smoking", "καπέλο": "hat", "καράβι": "boat", "καρπούζι": "watermelon", "καρύδι": "walnut", "κάστρο": "castle", "κατάλογος": "list", "κατάσταση": "situation", "κάτοικος": "resident", "κατοικίδιο": "pet", "καύσωνας": "heatwave", "κεντρικός": "central", "κέντρο": "centre", "κεράσι": "cherry", "κερί": "candle", "κέρμα": "coin", "κινητό": "mobile", "κλαδί": "branch", "κλαίω": "cry", "κλέβω": "steal", "κλέφτης": "thief", "κλίμα": "climate", "κοιλιά": "belly", "κοινός": "common", "κοιτάζω": "look", "κολύμπι": "swimming", "κολυμπάω": "swim", "κόμμα": "party", "κομμάτι": "piece", "κόρη": "daughter", "κορμί": "body", "κουβέντα": "chat", "κουνέλι": "rabbit", "κουνούπι": "mosquito", "κουράζομαι": "tire", "κουτί": "box", "κρατάω": "hold", "κρυώνω": "freeze", "κυρία": "lady", "κύριος": "sir", "κύμα": "wave", "λαβύρινθος": "labyrinth", "λάθος": "mistake", "λαιμός": "neck", "λαχανικά": "vegetables", "λάμπα": "lamp", "λάμπω": "shine", "λαός": "people", "λαχείο": "lottery", "λαγός": "hare", "λέγομαι": "named", "λεκές": "stain", "λεμονάδα": "lemonade", "λεξικό": "dictionary", "λεπτομέρεια": "detail", "λεπτός": "thin", "λευκός": "white", "λεφτά": "money", "λιοντάρι": "lion", "λιβάδι": "meadow", "λίγο": "little", "λίγος": "few", "λίμνη": "lake", "λιώνω": "melt", "λογική": "logic", "λόγος": "reason", "λογοτεχνία": "literature", "λόφος": "hill", "λουκάνικο": "sausage", "λουκέτο": "padlock", "λύκος": "wolf", "λύνω": "solve", "λύπη": "sorrow", "λυπάμαι": "sorry", "λαμβάνω": "receive", "λαμπρός": "bright", "λαϊκός": "folk", "λεβέντης": "gallant", "λαχταρώ": "crave", "λεία": "prey", "λειτουργία": "function", "λειτουργώ": "operate", "λέσχη": "club", "λεωφόρος": "avenue", "λήξη": "expiry", "ληστής": "robber", "λόγια": "words", "μαγαζί": "shop", "μάγειρας": "cook", "μαγεία": "magic", "μάγουλο": "cheek", "μαθαίνω": "learn", "μαλλιά": "hair", "μάλιστα": "indeed", "μαμά": "mum", "μανάβης": "greengrocer", "μανιτάρι": "mushroom", "μανίκι": "sleeve", "μαξιλάρι": "pillow", "μάρμαρο": "marble", "μαρούλι": "lettuce", "μάσκα": "mask", "μαστίχα": "mastic", "μέγεθος": "size", "μέθοδος": "method", "μελέτη": "study", "μελετάω": "study", "μέλλον": "future", "μέρος": "place", "μέση": "middle", "μεσάνυχτα": "midnight", "μεσημέρι": "noon", "μεταφορά": "transport", "μετράω": "count", "μέτωπο": "forehead", "μήκος": "length", "μηχανικός": "engineer", "μισός": "half", "μισώ": "hate", "μνήμη": "memory", "μοιράζομαι": "share", "μολύβι": "pencil", "μόδα": "fashion", "μουσείο": "museum", "μουστάκι": "moustache", "μπαμπάς": "dad", "μπαλκόνι": "balcony", "μπάλα": "ball", "μπίρα": "beer", "μπουκάλι": "bottle", "μύτη": "nose", "μυαλό": "mind", "μυρίζω": "smell", "μυστικό": "secret", "μύγα": "fly", "νάνος": "dwarf", "ναός": "temple", "ναύτης": "sailor", "ναυτικός": "naval", "νεαρός": "youth", "νεκρός": "dead", "νεράιδα": "fairy", "νεύρα": "nerves", "νευριάζω": "fume", "νησιώτης": "islander", "νηστεία": "fasting", "νικάω": "beat", "νίκη": "victory", "νοιάζομαι": "care", "νόημα": "meaning", "νοικοκυριό": "household", "νοίκι": "rent", "νομίζω": "suppose", "νόμισμα": "currency", "νομός": "prefecture", "νοσοκόμα": "nurse", "νόστιμος": "tasty", "νούμερο": "number", "νους": "intellect", "ντρέπομαι": "ashamed", "ντροπή": "shame", "ντύνομαι": "dress", "ντους": "shower", "νυστάζω": "sleepy", "νυφίτσα": "weasel", "νύφη": "bride", "νύχι": "nail", "νωρίς": "early", "νωθρός": "sluggish", "νέφος": "smog", "νεολαία": "youth", "νοσηλεία": "treatment", "νόμιμος": "legal", "νέα": "news", "ξαδέρφη": "cousin", "ξάδερφος": "cousin", "ξανά": "again", "ξανθός": "blond", "ξαπλώνω": "lie", "ξαφνικά": "suddenly", "ξεκούραση": "rest", "ξεκουράζομαι": "rest", "ξεχωριστός": "separate", "ξένος": "foreign", "ξενιτιά": "exile", "ξηρός": "dry", "ξηρασία": "drought", "ξιφίας": "swordfish", "ξύλο": "wood", "ξύλινος": "wooden", "ξυπνητήρι": "alarm", "ξυράφι": "razor", "ξυρίζομαι": "shave", "ξύνω": "scratch", "ξεθωριάζω": "fade", "ξέρα": "reef", "ξεπερνώ": "overcome", "ξεφεύγω": "escape", "ξοδεύω": "spend", "ξέφωτο": "clearing", "ξεχειλίζω": "overflow", "ξινός": "sour", "οδός": "street", "οδοντίατρος": "dentist", "οδοντόβουρτσα": "toothbrush", "οθόνη": "screen", "οικόπεδο": "plot", "όλος": "whole", "ολόκληρος": "entire", "ομίχλη": "fog", "ομιλία": "speech", "όμορφος": "beautiful", "ομορφιά": "beauty", "ομπρέλα": "umbrella", "όνομα": "name", "ονομάζω": "name", "οπωσδήποτε": "definitely", "όπλο": "weapon", "όπως": "like", "οργή": "rage", "όργανο": "instrument", "οργάνωση": "organisation", "ορεκτικό": "starter", "όρεξη": "appetite", "ορίζοντας": "horizon", "όριο": "limit", "ορθόδοξος": "orthodox", "όροφος": "floor", "ορχήστρα": "orchestra", "οσμή": "odour", "ουρά": "tail", "ουσία": "substance", "ουσιαστικό": "noun", "οφθαλμίατρος": "ophthalmologist", "όφελος": "benefit", "όχημα": "vehicle", "όψη": "aspect", "οικονομικός": "financial", "οικολογία": "ecology", "ογκώδης": "bulky", "οξυγόνο": "oxygen", "οπαδός": "fan", "όραμα": "vision", "όρος": "term", "ορατός": "visible", "οκταπόδι": "octopus", "όστρακο": "shell", "ουράνιος": "heavenly", "παγωτό": "icecream", "πάγος": "ice", "παγωμένος": "frozen", "παζάρι": "bazaar", "παιχνίδι": "game", "παλάμη": "palm", "παλτό": "coat", "πανί": "cloth", "πανσέληνος": "fullmoon", "παντελόνι": "trousers", "παντρεύομαι": "marry", "παπούτσι": "shoe", "παράδεισος": "paradise", "παράδοση": "tradition", "παραμύθι": "fairytale", "πάρτι": "party", "πάστα": "pastry", "πεθαίνω": "die", "πεινάω": "hungry", "πείνα": "hunger", "πέλαγος": "ocean", "πέτρα": "stone", "πεταλούδα": "butterfly", "πετάω": "fly", "πηγάδι": "well", "πηγή": "source", "πιάνο": "piano", "πίσω": "back", "πίστη": "faith", "πίτα": "pie", "πλάτη": "back", "πλούσιος": "rich", "πνεύμα": "spirit", "ποίημα": "poem", "ποιητής": "poet", "πολιτική": "politics", "πονάω": "hurt", "πορτοκάλι": "orange", "ποσό": "amount", "πουκάμισο": "shirt", "πράγμα": "thing", "πρίγκιπας": "prince", "πρόεδρος": "president", "προσοχή": "attention", "πρωινό": "breakfast", "πυροσβέστης": "firefighter", "ράβω": "sew", "ράδιο": "radio", "ραδίκι": "chicory", "ραντεβού": "appointment", "ράμμα": "stitch", "ραπτική": "tailoring", "ρεύμα": "current", "ρετσίνα": "retsina", "ρήμα": "verb", "ρητό": "maxim", "ριγέ": "striped", "ρίζα": "root", "ρινόκερος": "rhino", "ρίχνω": "throw", "ροδάκινο": "peach", "ρόδι": "pomegranate", "ροζ": "pink", "ρόλος": "role", "ρομαντικός": "romantic", "ρουτίνα": "routine", "ρουφάω": "sip", "ρυάκι": "stream", "ρυθμός": "rhythm", "ρολό": "roll", "ρεπό": "dayoff", "ρεκόρ": "record", "ρεπορτάζ": "report", "ρέμα": "creek", "ρεβίθι": "chickpea", "ρηχός": "shallow", "ρίσκο": "risk", "ρόπαλο": "club", "ρούμι": "rum", "ρουφηξιά": "puff", "ρυτίδα": "wrinkle", "ρωμαϊκός": "roman", "ροή": "flow", "ράμφος": "beak", "ράχη": "ridge", "σαββατοκύριακο": "weekend", "σακάκι": "jacket", "σάλι": "shawl", "σαλόνι": "lounge", "σαν": "like", "σβήνω": "erase", "σειρά": "series", "σεισμός": "earthquake", "σεντόνι": "sheet", "σέρνω": "drag", "σίγουρος": "certain", "σιωπή": "silence", "σκάλα": "stairs", "σκάφος": "vessel", "σκέψη": "thought", "σκηνή": "stage", "σκιά": "shadow", "σκοπός": "aim", "σκοτάδι": "darkness", "σκουλήκι": "worm", "σοκολάτα": "chocolate", "σοφός": "wise", "σπάω": "break", "σπουδαίος": "great", "σπουδές": "studies", "στάδιο": "stadium", "σταφύλι": "grape", "στέγη": "roof", "στεναχωριέμαι": "upset", "στήθος": "chest", "στόμα": "mouth", "στολή": "uniform", "στρατός": "army", "συγγνώμη": "sorry", "συγγραφέας": "author", "σύζυγος": "spouse", "συλλογή": "collection", "συναυλία": "concert", "συνήθεια": "habit", "σύνορα": "border", "σύστημα": "system", "σφυρί": "hammer", "σχέδιο": "plan", "σχήμα": "shape", "σχολή": "faculty", "σώζω": "save", "σωστός": "correct", "ταβέρνα": "tavern", "ταΐζω": "feed", "ταμείο": "till", "ταμπέλα": "sign", "τάξη": "class", "ταπεινός": "humble", "ταράτσα": "rooftop", "ταραχή": "turmoil", "τάση": "trend", "ταύρος": "bull", "τεμπέλης": "lazy", "τεχνική": "technique", "τέχνη": "art", "τζάμι": "pane", "τζάκι": "fireplace", "τηλεόραση": "television", "τιμωρία": "punishment", "τίτλος": "title", "τοίχος": "wall", "τόλμη": "boldness", "τόνος": "tone", "τοπίο": "landscape", "τόπος": "place", "τοστ": "toast", "τουλάχιστον": "minimum", "τούρτα": "gateau", "τράγος": "goat", "τραγωδία": "tragedy", "τρελός": "crazy", "τριαντάφυλλο": "rose", "τρόμος": "terror", "τρόπος": "way", "τροφή": "nourishment", "τρύπα": "hole", "τσάντα": "bag", "τσέπη": "pocket", "τσιγάρο": "cigarette", "τύχη": "luck", "τυχερός": "lucky", "τυφλός": "blind", "τζίτζικας": "cicada", "υγρασία": "humidity", "υγρός": "wet", "υιοθετώ": "adopt", "ύλη": "matter", "υλικό": "material", "ύμνος": "hymn", "υπάρχω": "exist", "ύπαρξη": "existence", "υπέροχος": "wonderful", "υπερβολή": "exaggeration", "ύπνος": "sleep", "υπνοδωμάτιο": "bedroom", "υπόγειο": "basement", "υπογραφή": "signature", "υπογράφω": "sign", "υπολογίζω": "calculate", "υπομονή": "patience", "υπόσχεση": "promise", "υπόσχομαι": "promise", "υπουργός": "minister", "υπουργείο": "ministry", "υποψήφιος": "candidate", "ύστερα": "afterwards", "υστερία": "hysteria", "ύφασμα": "fabric", "ύφος": "style", "ύψος": "height", "υψηλός": "high", "υφήλιος": "globe", "υγιής": "healthy", "υδραυλικός": "plumber", "υποδοχή": "welcome", "υποθέτω": "assume", "υπερηφάνεια": "pride", "υπερήφανος": "proud", "υπηρέτης": "servant", "υπόλοιπος": "remaining", "υπότιτλος": "subtitle", "φαίνομαι": "seem", "φακός": "lens", "φάκελος": "envelope", "φανταστικός": "fantastic", "φαντάρος": "soldier", "φαρμακείο": "pharmacy", "φάρος": "lighthouse", "φασαρία": "fuss", "φασόλια": "beans", "φέρνω": "bring", "φέτα": "slice", "φιλί": "kiss", "φιλώ": "kiss", "φιλία": "friendship", "φιλικός": "friendly", "φίλτρο": "filter", "φόρεμα": "dress", "φοράω": "wear", "φόρος": "tax", "φορτιστής": "charger", "φούστα": "skirt", "φούσκα": "bubble", "φράουλα": "strawberry", "φράση": "phrase", "φρέσκος": "fresh", "φροντίζω": "care", "φρύδι": "eyebrow", "φτάνω": "arrive", "φτερό": "feather", "φτωχός": "poor", "φύλλο": "leaf", "φύση": "nature", "φυσικά": "naturally", "φυτό": "plant", "φως": "light", "φωνάζω": "shout", "φωλιά": "nest", "φυλακή": "prison", "φυλάω": "guard", "φούρναρης": "baker", "χαζός": "silly", "χαιρετώ": "greet", "χαίρομαι": "glad", "χαλάω": "spoil", "χαλί": "carpet", "χαλαρός": "loose", "χαμηλός": "low", "χάνομαι": "vanish", "χάος": "chaos", "χαρακτήρας": "character", "χαρούμενος": "cheerful", "χαρτί": "paper", "χαρτονόμισμα": "banknote", "χειμερινός": "wintry", "χειροκροτώ": "applaud", "χειρουργός": "surgeon", "χελώνα": "turtle", "χημεία": "chemistry", "χήνα": "goose", "χιούμορ": "humour", "χοίρος": "swine", "χορεύω": "dance", "χορτάρι": "grass", "χορτοφάγος": "vegetarian", "χρέος": "debt", "χρήσιμος": "useful", "χρησιμοποιώ": "use", "Χριστούγεννα": "Christmas", "χρονιά": "year", "χρυσός": "gold", "χταπόδι": "octopus", "χτένα": "comb", "χτίζω": "build", "χτυπάω": "hit", "χυμός": "juice", "χωράφι": "field", "χωρίζω": "separate", "χωρίς": "without", "χώμα": "soil", "χαμομήλι": "chamomile", "χαμένος": "lost", "ψαλίδι": "scissors", "ψαράς": "fisherman", "ψαρεύω": "fish", "ψεύτης": "liar", "ψείρα": "louse", "ψηλός": "tall", "ψηφίζω": "vote", "ψήφος": "vote", "ψητός": "roasted", "ψιλός": "fine", "ψιχάλα": "drizzle", "ψίχουλο": "crumb", "ψυχαγωγία": "entertainment", "ψυχίατρος": "psychiatrist", "ψυχολογία": "psychology", "ψυχολόγος": "psychologist", "ψυχρός": "chilly", "ψύχραιμος": "composed", "ψωνίζω": "shop", "ψώνια": "shopping", "ψάθα": "straw", "ψαρόσουπα": "chowder", "ψέματα": "lies", "ψηλά": "upward", "ψήσιμο": "roasting", "ψηφιακός": "digital", "ψίθυρος": "whisper", "ψιθυρίζω": "whisper", "ψόφιος": "lifeless", "ωδή": "ode", "ωδείο": "conservatory", "ωκεανός": "ocean", "ωμός": "raw", "ώμος": "shoulder", "ωμέγα": "omega", "ωραία": "nicely", "ωριμάζω": "ripen", "ώριμος": "mature", "ωροσκόπιο": "horoscope", "ωράριο": "schedule", "ως": "as", "ώσπου": "until", "ώστε": "so", "ωφέλεια": "benefit", "ωφελώ": "benefit", "ωφέλιμος": "useful", "ωκεάνιος": "oceanic", "ωχρός": "pale", "ωτοασπίδες": "earplugs", "ωριαίος": "hourly", "ώθηση": "push", "ωμότητα": "brutality", "ωραιοποιώ": "embellish"};
+// category and letter glosses only fill gaps, so existing translations stay as they are
+for(const c of Object.values(CATS)) for(const [k,v] of Object.entries(c.words)) if(!(k in GLOSS_EL)) GLOSS_EL[k]=v;
+for(const [k,v] of Object.entries(EXTRA_EL)) if(!(k in GLOSS_EL)) GLOSS_EL[k]=v;
+// the 2,000 words of Greek Everyday 2000, copied from that app in its rank order (ο, η, το is typed as ο);
+// both apps use exactly this list, so keep them in step when it changes
+const FREQ_EL = [["ο", "the"], ["να", "to / that (subjunctive)"], ["είμαι", "to be"], ["δεν", "not"], ["θα", "will"], ["και", "and"], ["αυτός", "this / he"], ["ένας", "a / one"], ["έχω", "to have"], ["με", "with / me"], ["για", "for"], ["που", "that / which / where"], ["κάνω", "to do / make"], ["σε", "in / at / to"], ["τι", "what"], ["λέω", "to say / tell"], ["ότι", "that"], ["από", "from"], ["μπορώ", "to be able / can"], ["ξέρω", "to know (a fact)"], ["θέλω", "to want"], ["όχι", "no / not"], ["ναι", "yes"], ["πολύς", "much / many / very"], ["αλλά", "but"], ["αν", "if"], ["πρέπει", "must / have to"], ["πηγαίνω", "to go"], ["πώς", "how"], ["εδώ", "here"], ["όλος", "all / whole"], ["καλός", "good"], ["έρχομαι", "to come"], ["κάτι", "something"], ["εγώ", "I"], ["βλέπω", "to see"], ["εσύ", "you"], ["γιατί", "why / because"], ["παίρνω", "to take"], ["τώρα", "now"], ["μην", "don't (neg. imperative)"], ["εντάξει", "okay"], ["μόνος", "alone / only"], ["κάποιος", "someone / some"], ["ποιος", "who / which"], ["έτσι", "like this / so"], ["νομίζω", "to think (believe)"], ["βρίσκω", "to find"], ["άλλος", "other"], ["γίνομαι", "to become / happen"], ["όταν", "when"], ["υπάρχω", "to exist / there is"], ["μέρα", "day"], ["απλός", "simple / simply"], ["ευχαριστώ", "thank you / thanks"], ["φεύγω", "to leave / go away"], ["μαζί", "together"], ["εκεί", "there"], ["μένω", "to stay / live (reside)"], ["μιλάω", "to speak / talk"], ["τίποτα", "nothing / anything"], ["σαν", "like / as"], ["ακόμα", "still / yet"], ["τόσο", "so (much)"], ["κύριος", "sir / Mr / lord"], ["χρόνος", "year"], ["ή", "or"], ["φίλος", "friend"], ["ακούω", "to hear / listen"], ["λίγος", "a little / few"], ["δύο", "two"], ["μέσα", "inside"], ["παιδί", "child"], ["βοηθάω", "to help"], ["ποτέ", "never / ever"], ["αφήνω", "to leave / let"], ["πράγμα", "thing"], ["φορά", "time (occasion)"], ["χρειάζομαι", "to need"], ["πιστεύω", "to believe"], ["πάντα", "always"], ["λοιπόν", "so / well then"], ["σπίτι", "house / home"], ["ίσως", "maybe"], ["δικός", "own / (mine, yours)"], ["κοιτάζω", "to look"], ["δίνω", "to give"], ["καλύτερος", "better"], ["περιμένω", "to wait"], ["γεια", "hi / bye"], ["τότε", "then"], ["κανένας", "no one / none / any"], ["παρακαλώ", "please / you're welcome"], ["πιο", "more (comparative)"], ["άνθρωπος", "person / human"], ["μετά", "after / then"], ["πριν", "before"], ["μεγάλος", "big / great"], ["πίσω", "back / behind"], ["όπως", "as / like"], ["χαίρομαι", "to be glad"], ["καταλαβαίνω", "to understand"], ["θεός", "god"], ["ζωή", "life"], ["αγαπώ", "to love"], ["ώρα", "hour / time"], ["δουλειά", "job / work"], ["ωραίος", "nice / beautiful"], ["κάθε", "every / each"], ["πάνω", "up / above"], ["αλήθεια", "truth / really?"], ["σωστός", "right / correct"], ["σίγουρος", "sure"], ["συγγνώμη", "sorry / excuse me"], ["γυναίκα", "woman / wife"], ["ας", "let (me/us…)"], ["αρέσω", "to be liked (μου αρέσει = I like)"], ["πόσος", "how much / many"], ["ίδιος", "same"], ["πατέρας", "father"], ["έξω", "outside"], ["σταματάω", "to stop"], ["γυρίζω", "to turn / come back"], ["περνάω", "to pass / spend (time)"], ["άντρας", "man"], ["επειδή", "because"], ["μέχρι", "until"], ["τελειώνω", "to finish"], ["βάζω", "to put"], ["φαίνομαι", "to seem / appear"], ["μαθαίνω", "to learn / find out"], ["ούτε", "neither / nor / not even"], ["προσπαθώ", "to try"], ["όμως", "however"], ["μικρός", "small / little"], ["χωρίς", "without"], ["πεθαίνω", "to die"], ["εκείνος", "that (one)"], ["σκοτώνω", "to kill"], ["αδερφός", "brother / sibling"], ["μα", "but (emphatic)"], ["λόγος", "reason / word"], ["σκέφτομαι", "to think (reflect)"], ["θυμάμαι", "to remember"], ["κόσμος", "world / people"], ["εννοώ", "to mean (intend)"], ["μαμά", "mom"], ["πρόβλημα", "problem"], ["μόλις", "as soon as / just"], ["μπαμπάς", "dad"], ["φέρνω", "to bring"], ["ακριβώς", "exactly"], ["φυσικά", "of course / naturally"], ["πραγματικός", "real / really"], ["κρατάω", "to hold / keep"], ["πάλι", "again"], ["λεπτό", "minute"], ["σήμερα", "today"], ["αρχίζω", "to begin"], ["μερικοί", "some / a few"], ["νέος", "new / young"], ["τρόπος", "way / manner"], ["αρκετός", "enough / quite"], ["οπότε", "so / in which case"], ["τύπος", "guy / type"], ["λάθος", "mistake / wrong"], ["αμάξι", "car"], ["περισσότερος", "more"], ["λυπάμαι", "to be sorry"], ["χέρι", "hand"], ["στιγμή", "moment"], ["τέτοιος", "such"], ["όσο", "as much as"], ["χάνω", "to lose / miss"], ["όνομα", "name"], ["τελευταίος", "last"], ["δουλεύω", "to work"], ["γρήγορος", "fast / quickly"], ["καιρός", "weather / (long) time"], ["κακός", "bad"], ["ζητάω", "to ask for / request"], ["γνωρίζω", "to know (a person) / meet"], ["μητέρα", "mother"], ["κορίτσι", "girl"], ["μηδέν", "zero"], ["τρεις", "three"], ["τέσσερις", "four"], ["πέντε", "five"], ["έξι", "six"], ["επτά", "seven"], ["οκτώ", "eight"], ["εννέα", "nine"], ["δέκα", "ten"], ["πρώτος", "first"], ["δεύτερος", "second"], ["τρίτος", "third"], ["τέταρτος", "fourth"], ["πέμπτος", "fifth"], ["έκτος", "sixth"], ["κυρία", "lady / Mrs / madam"], ["ως", "as / until"], ["αστυνομία", "police"], ["έτοιμος", "ready"], ["υπόθεση", "case / assumption"], ["τηλέφωνο", "telephone"], ["μάτι", "eye"], ["νιώθω", "to feel"], ["μισώ", "to hate (μισό = half)"], ["βράδυ", "evening"], ["ιδέα", "idea"], ["μωρό", "baby"], ["νεκρός", "dead"], ["σημαίνω", "to mean"], ["λεφτά", "money (colloquial)"], ["ανησυχώ", "to worry"], ["όμορφος", "beautiful / pretty"], ["δείχνω", "to show"], ["μάλλον", "rather / probably"], ["συμφωνώ", "to agree"], ["ήδη", "already"], ["παίζω", "to play"], ["δρόμος", "road / street"], ["όπου", "where / wherever"], ["εκτός", "except / outside"], ["εαυτός", "self"], ["προς", "toward"], ["ξεχνάω", "to forget"], ["γλυκός", "sweet"], ["αγόρι", "boy / boyfriend"], ["αύριο", "tomorrow"], ["γιατρός", "doctor"], ["ρωτάω", "to ask (a question)"], ["θέση", "position / place"], ["οικογένεια", "family"], ["δύσκολος", "difficult"], ["χώρα", "country"], ["τέλος", "end"], ["μακριά", "far"], ["υπέροχος", "wonderful"], ["τρελός", "crazy"], ["μήνας", "month"], ["δίκιο", "being right"], ["ξεκινάω", "to start"], ["αργά", "late / slowly"], ["σοβαρός", "serious"], ["πέρα", "beyond"], ["ξανά", "once more"], ["χτυπάω", "to hit / knock / ring"], ["αμέσως", "immediately"], ["γιος", "son"], ["μήπως", "perhaps / by any chance"], ["πειράζω", "to bother (δεν πειράζει = never mind)"], ["κοντά", "near / close"], ["δωμάτιο", "room"], ["στέλνω", "to send"], ["πότε", "when?"], ["μάλιστα", "yes (indeed) / certainly"], ["γάμος", "wedding / marriage"], ["πια", "anymore / by now"], ["βγάζω", "to take out"], ["πόλεμος", "war"], ["πόλη", "city"], ["κάτω", "down / below"], ["ομάδα", "team / group"], ["χρησιμοποιώ", "to use"], ["θάνατος", "death"], ["θέμα", "subject / issue"], ["επόμενος", "next"], ["επίσης", "also"], ["κεφάλι", "head"], ["αλλάζω", "to change"], ["πόρτα", "door"], ["μόνο", "only / just"], ["κόρη", "daughter"], ["ελπίζω", "to hope"], ["πρωί", "morning"], ["ορίστε", "here you are / yes?"], ["καθόλου", "not at all"], ["αφού", "since / after"], ["ιστορία", "story / history"], ["ήρεμος", "calm"], ["οδηγώ", "to drive / lead"], ["όλα", "everything"], ["πιάνω", "to catch / grab"], ["καλώ", "to call / invite"], ["σημαντικός", "important"], ["σχέση", "relationship / relation"], ["νύχτα", "night"], ["άσχημος", "ugly / bad"], ["ώστε", "so that"], ["χρήματα", "money"], ["μπροστά", "in front / ahead"], ["πού", "where?"], ["γραφείο", "office / desk"], ["πόδι", "foot / leg"], ["ερώτηση", "question"], ["νερό", "water"], ["τρέχω", "to run"], ["ευκαιρία", "opportunity / chance"], ["νοιάζομαι", "to care (δεν με νοιάζει = I don't care)"], ["σκύλος", "dog"], ["τέλειος", "perfect"], ["τηλεφωνώ", "to phone"], ["προσέχω", "to be careful / pay attention"], ["ψάχνω", "to search / look for"], ["ζωντανός", "alive / live"], ["μυαλό", "mind / brain"], ["πρόσωπο", "face / person"], ["εύκολος", "easy"], ["καταφέρνω", "to manage / succeed"], ["ψέμα", "lie"], ["παιχνίδι", "game / toy"], ["σπουδάζω", "to study (at university)"], ["δηλαδή", "that is / I mean"], ["φυλακή", "prison"], ["έλεγχος", "control / check"], ["ελεύθερος", "free"], ["σύζυγος", "spouse"], ["ανοίγω", "to open"], ["αλλιώς", "otherwise / differently"], ["σύντομα", "soon / short"], ["τουλάχιστον", "at least"], ["Ελλάδα", "Greece"], ["καρδιά", "heart"], ["δυνατός", "strong / loud"], ["κάπου", "somewhere"], ["ήσυχος", "quiet / calm"], ["αργότερα", "later"], ["σχολείο", "school"], ["άτομο", "person / individual"], ["μοιάζω", "to resemble / look like"], ["διαφορετικός", "different"], ["Έλληνας", "Greek (man)"], ["μεταξύ", "between"], ["περίεργος", "strange / curious"], ["σχεδόν", "almost"], ["θείος", "uncle"], ["χθες", "yesterday"], ["ποτό", "drink"], ["συνεχίζω", "to continue"], ["αντίο", "goodbye"], ["Αθήνα", "Athens"], ["αξίζω", "to be worth"], ["απόφαση", "decision"], ["τελικά", "finally / in the end"], ["ακολουθώ", "to follow"], ["αίμα", "blood"], ["μυστικό", "secret"], ["κατάσταση", "situation"], ["επιστρέφω", "to return"], ["γάλα", "milk"], ["βέβαια", "of course / certainly"], ["φωτιά", "fire"], ["καθαρός", "clean / clear"], ["βασικά", "basically"], ["σχέδιο", "plan / design"], ["προσωπικός", "personal"], ["πρόεδρος", "president"], ["κοπέλα", "young woman / girlfriend"], ["αληθινός", "true / real"], ["κρέας", "meat"], ["φαγητό", "food / meal"], ["σκληρός", "hard / harsh"], ["πληρώνω", "to pay"], ["συνέχεια", "continuously / sequel"], ["τραγούδι", "song"], ["κομμάτι", "piece"], ["αστείος", "funny"], ["πλάκα", "fun / joke"], ["δύναμη", "power / strength"], ["πιάτο", "plate / dish"], ["σημασία", "importance / meaning"], ["δίπλα", "next to"], ["καλημέρα", "good morning"], ["ειδικός", "special / specialist"], ["χειρότερος", "worse"], ["συγχωρώ", "to forgive / excuse"], ["ξυπνάω", "to wake up"], ["τύχη", "luck / fate"], ["ποτήρι", "drinking glass"], ["φοβάμαι", "to be afraid"], ["φτιάχνω", "to make / fix"], ["τραπέζι", "table"], ["ρίχνω", "to throw / drop"], ["ενδιαφέρω", "to interest (με ενδιαφέρει = I'm interested)"], ["γονείς", "parents"], ["αφεντικό", "boss"], ["ενώ", "while / whereas"], ["καρέκλα", "chair"], ["μαύρος", "black"], ["λευκός", "white"], ["άσπρος", "white (plain colour)"], ["κόκκινος", "red"], ["μπλε", "blue"], ["πράσινος", "green"], ["κίτρινος", "yellow"], ["γκρι", "grey"], ["ροζ", "pink"], ["πορτοκαλί", "orange (colour)"], ["μωβ", "purple"], ["καφέ", "brown (colour)"], ["κάθομαι", "to sit"], ["αγοράζω", "to buy"], ["όνειρο", "dream"], ["περίπτωση", "case / instance"], ["συναντάω", "to meet"], ["απαντάω", "to answer"], ["κερδίζω", "to win / earn"], ["κήπος", "garden"], ["έξυπνος", "smart / clever"], ["νοσοκομείο", "hospital"], ["τιμή", "honour / price"], ["περίπου", "about / approximately"], ["δοκιμάζω", "to try / test"], ["χαρτί", "paper / card"], ["βιβλίο", "book"], ["επιλογή", "choice / option"], ["σώζω", "to save / rescue"], ["απόψε", "tonight"], ["μήνυμα", "message"], ["γη", "earth / land"], ["ραντεβού", "appointment / date"], ["μπράβο", "well done / bravo"], ["διαβάζω", "to read"], ["ζω", "to live"], ["σκέψη", "thought"], ["σώμα", "body"], ["δικηγόρος", "lawyer"], ["φίλη", "female friend"], ["μουσική", "music"], ["τυχερός", "lucky"], ["πλέον", "by now / any longer"], ["κλειδί", "key"], ["όπλο", "weapon / gun"], ["ταινία", "film / movie"], ["καφές", "coffee"], ["συζητάω", "to discuss / talk over"], ["κρεβάτι", "bed"], ["θεία", "aunt"], ["δώρο", "gift"], ["παράξενος", "strange"], ["εξηγώ", "to explain"], ["λείπω", "to be missing / be away"], ["άρρωστος", "sick"], ["παρατάω", "to give up / drop"], ["καληνύχτα", "good night"], ["παντρεύομαι", "to marry / get married"], ["τάξη", "class / order"], ["οδηγός", "driver / guide"], ["οτιδήποτε", "anything"], ["περιοχή", "area / region"], ["φωτογραφία", "photograph"], ["βγαίνω", "to go out / come out"], ["παλιός", "old"], ["σειρά", "turn / series"], ["ρούχα", "clothes"], ["λέξη", "word"], ["πέφτω", "to fall"], ["αστυνομικός", "police officer"], ["εβδομάδα", "week"], ["Δευτέρα", "Monday"], ["Τρίτη", "Tuesday"], ["Τετάρτη", "Wednesday"], ["Πέμπτη", "Thursday"], ["Παρασκευή", "Friday"], ["Σάββατο", "Saturday"], ["Κυριακή", "Sunday"], ["σαββατοκύριακο", "weekend"], ["αριθμός", "number"], ["προφανώς", "obviously"], ["δείπνο", "dinner"], ["ταξίδι", "trip / journey"], ["άρα", "therefore / so"], ["αγαπημένος", "favourite / beloved"], ["ολόκληρος", "whole / entire"], ["κάπως", "somehow / somewhat"], ["φοιτητής", "university student"], ["πόνος", "pain"], ["παρακολουθώ", "to watch / follow"], ["αέρας", "air / wind"], ["άλογο", "horse"], ["λειτουργώ", "to function / work (machines)"], ["γεμάτος", "full"], ["πετάω", "to throw away / fly"], ["ελέγχω", "to check / control"], ["σημείο", "point / spot"], ["μπαλκόνι", "balcony"], ["προσοχή", "attention / careful!"], ["επικίνδυνος", "dangerous"], ["μέλος", "member"], ["υπόσχομαι", "to promise"], ["ευτυχισμένος", "happy"], ["φοβερός", "terrific / awful"], ["εντελώς", "completely"], ["μαλλιά", "hair"], ["ταξί", "taxi"], ["προτιμώ", "to prefer"], ["κλείνω", "to close"], ["έντεκα", "eleven"], ["δώδεκα", "twelve"], ["είκοσι", "twenty"], ["τριάντα", "thirty"], ["σαράντα", "forty"], ["πενήντα", "fifty"], ["εξήντα", "sixty"], ["εβδομήντα", "seventy"], ["ογδόντα", "eighty"], ["ενενήντα", "ninety"], ["εκατό", "one hundred"], ["χίλια", "one thousand"], ["εκατοντάδα", "hundred(s)"], ["χιλιάδα", "thousand"], ["εκατομμύριο", "million"], ["πουθενά", "nowhere / anywhere"], ["κέντρο", "centre"], ["ψηλός", "tall / high"], ["ασφάλεια", "safety / security / insurance"], ["αεροδρόμιο", "airport"], ["νεαρός", "young"], ["δεξιά", "right (direction)"], ["πληροφορία", "information"], ["χαρούμενος", "happy / cheerful"], ["μέλλον", "future"], ["απίστευτος", "unbelievable"], ["συμβαίνω", "to happen"], ["εσείς", "you (plural / formal)"], ["παραλία", "beach"], ["εμείς", "we"], ["φτάνω", "to arrive / reach / suffice"], ["άποψη", "opinion / view"], ["πρόκειται", "it's about / is going to"], ["τρώω", "to eat"], ["πάρτι", "party"], ["οποίος", "which / who"], ["μπαίνω", "to enter / get in"], ["γράφω", "to write"], ["πουλί", "bird"], ["πουλάω", "to sell"], ["φαντάζομαι", "to imagine"], ["κυνηγάω", "to hunt / chase"], ["έρευνα", "research / investigation"], ["κοιμάμαι", "to sleep"], ["ελληνικά", "Greek (language)"], ["χορεύω", "to dance"], ["στοιχείο", "element / evidence"], ["απόδειξη", "proof / receipt"], ["μετράω", "to count / measure"], ["καθαρίζω", "to clean"], ["βασιλιάς", "king"], ["φροντίζω", "to take care of"], ["γραμμή", "line"], ["στέκομαι", "to stand"], ["νωρίς", "early"], ["εναντίον", "against"], ["καινούργιος", "brand new"], ["παθαίνω", "to suffer / get (hurt)"], ["κρυώνω", "to be cold (feel)"], ["κανόνας", "rule"], ["τραβάω", "to pull / drag"], ["απάντηση", "answer (noun)"], ["αναφέρω", "to mention / report"], ["σχετικός", "relevant / related"], ["ειλικρινής", "sincere"], ["νίκη", "victory"], ["σηκώνω", "to lift / raise"], ["διψάω", "to be thirsty"], ["θεωρώ", "to consider"], ["φωνάζω", "to shout / call out"], ["δέχομαι", "to accept"], ["προχωράω", "to proceed / move on"], ["κρύβω", "to hide"], ["εταιρεία", "company"], ["ανήκω", "to belong"], ["ντομάτα", "tomato"], ["πελάτης", "customer"], ["πιθανός", "likely"], ["φόβος", "fear"], ["πραγματικότητα", "reality"], ["σπάω", "to break"], ["εμπιστεύομαι", "to trust"], ["άδεια", "permission / permit"], ["επιτρέπω", "to allow"], ["γεγονός", "fact / event"], ["πατάτα", "potato"], ["καταστρέφω", "to destroy"], ["πίεση", "pressure"], ["μάθημα", "lesson"], ["ρόλος", "role"], ["κλέβω", "to steal"], ["προκαλώ", "to cause"], ["διαφορά", "difference"], ["ρολόι", "watch / clock"], ["δημιουργώ", "to create"], ["πίστη", "faith / loyalty"], ["ανακαλύπτω", "to discover"], ["μάνα", "mother (colloquial)"], ["μπαρ", "bar"], ["στόχος", "target / goal"], ["αντέχω", "to endure"], ["γέρος", "old man"], ["ομπρέλα", "umbrella"], ["είτε", "either / whether"], ["άκρη", "edge / end"], ["ασφαλής", "safe"], ["ανάγκη", "need"], ["ετοιμάζω", "to prepare"], ["σύστημα", "system"], ["κάποτε", "once / someday"], ["γνώμη", "opinion"], ["παντελόνι", "trousers"], ["εύχομαι", "to wish"], ["τμήμα", "department / section"], ["λατρεύω", "to adore"], ["καθώς", "as / while"], ["βάση", "base / basis"], ["ξενοδοχείο", "hotel"], ["χάρτης", "map"], ["επιτέλους", "at last"], ["λίστα", "list"], ["μακάρι", "I wish / hopefully"], ["εξέταση", "exam / examination"], ["ανάμεσα", "among / between"], ["πλοίο", "ship"], ["κάμερα", "camera"], ["υποτίθεται", "supposedly / supposed to"], ["στυλό", "pen"], ["φως", "light"], ["αφορώ", "to concern"], ["λογικός", "logical / reasonable"], ["αριστερά", "left (direction)"], ["όντως", "indeed / really"], ["κοινός", "common / shared"], ["συνήθως", "usually"], ["βαρύς", "heavy"], ["φτωχός", "poor"], ["ύπνος", "sleep"], ["αγώνας", "struggle / match"], ["σπουδαίος", "great / important"], ["κίνδυνος", "danger"], ["σκοπός", "purpose / aim"], ["αγαπητός", "dear"], ["ενδιαφέρον", "interesting / interest"], ["μακρύς", "long"], ["χαζός", "silly / dumb"], ["αεροπλάνο", "airplane"], ["κινητό", "mobile phone"], ["λύση", "solution"], ["νόημα", "meaning / sense"], ["κατηγορώ", "to accuse"], ["κοντός", "short (length / height)"], ["ξαφνικά", "suddenly"], ["νούμερο", "number (figure)"], ["πλησιάζω", "to approach"], ["ζεστός", "hot / warm"], ["βαθύς", "deep"], ["διορθώνω", "to fix / correct"], ["ανοιχτός", "open"], ["δολοφόνος", "murderer"], ["αρχηγός", "leader / chief"], ["κόβω", "to cut"], ["στόμα", "mouth"], ["αργός", "slow"], ["χρυσός", "gold"], ["εκτιμώ", "to appreciate / estimate"], ["φταίω", "to be to blame"], ["περπατάω", "to walk"], ["σεβασμός", "respect"], ["σημάδι", "mark / sign"], ["ανόητος", "foolish"], ["πρώην", "ex- / former"], ["υπεύθυνος", "responsible"], ["βρώμικος", "dirty"], ["παραπάνω", "extra / above"], ["προηγούμενος", "previous"], ["προστατεύω", "to protect"], ["γνωστός", "known / acquaintance"], ["παράθυρο", "window"], ["εξαιτίας", "because of"], ["εξαφανίζομαι", "to disappear"], ["συχνά", "often"], ["συμβουλή", "advice"], ["γύρω", "around"], ["διαμέρισμα", "apartment"], ["ευγενικός", "polite / kind"], ["λογαριασμός", "bill / account"], ["κίνηση", "movement / traffic"], ["ατύχημα", "accident"], ["πεινάω", "to be hungry"], ["ορκίζομαι", "to swear (an oath)"], ["απόλυτος", "absolute"], ["προσφέρω", "to offer"], ["λιγότερο", "less"], ["πιθανότητα", "probability / chance"], ["σκηνή", "scene / tent"], ["αποτέλεσμα", "result"], ["αναγνωρίζω", "to recognize"], ["μοναδικός", "unique"], ["ήλιος", "sun"], ["γεννιέμαι", "to be born"], ["ανθρώπινος", "human"], ["φωνή", "voice"], ["χαμογελάω", "to smile"], ["πρόγραμμα", "program / schedule"], ["μαγαζί", "shop"], ["πρωινό", "breakfast"], ["Ιανουάριος", "January"], ["Φεβρουάριος", "February"], ["Μάρτιος", "March"], ["Απρίλιος", "April"], ["Μάιος", "May"], ["Ιούνιος", "June"], ["Ιούλιος", "July"], ["Αύγουστος", "August"], ["Σεπτέμβριος", "September"], ["Οκτώβριος", "October"], ["Νοέμβριος", "November"], ["Δεκέμβριος", "December"], ["άνοιξη", "spring (season)"], ["καλοκαίρι", "summer"], ["φθινόπωρο", "autumn"], ["χειμώνας", "winter"], ["κουτί", "box"], ["επαφή", "contact"], ["τηλεόραση", "television"], ["ενημερώνω", "to inform"], ["πολιτικός", "political / politician"], ["φιλάω", "to kiss"], ["τεράστιος", "huge"], ["παρελθόν", "past"], ["καθένας", "each one"], ["μπάνιο", "bath / bathroom"], ["συνάντηση", "meeting"], ["δικαίωμα", "right (entitlement)"], ["ψυχή", "soul"], ["αντιμετωπίζω", "to face / deal with"], ["τραγουδάω", "to sing"], ["παρέα", "company / group of friends"], ["εργασία", "work / employment"], ["επιχείρηση", "business / operation"], ["παππούς", "grandfather"], ["ενοχλώ", "to disturb"], ["χρωστάω", "to owe"], ["οποιοσδήποτε", "any / whoever"], ["γιαγιά", "grandmother"], ["κολυμπάω", "to swim"], ["πλήρης", "full / complete"], ["ξεφεύγω", "to escape / slip away"], ["Χριστούγεννα", "Christmas"], ["συγχαρητήρια", "congratulations"], ["έκπληξη", "surprise"], ["σήμα", "signal / badge"], ["κολλάω", "to stick / get stuck"], ["ζεσταίνομαι", "to feel hot"], ["κόλπο", "trick"], ["ταιριάζω", "to suit / match"], ["μηχανή", "machine / engine"], ["τσάντα", "bag"], ["κωδικός", "code"], ["ιδιαίτερος", "special / particular"], ["περήφανος", "proud"], ["δικαστήριο", "court"], ["ντρέπομαι", "to be ashamed"], ["καθηγητής", "professor"], ["θάλασσα", "sea"], ["δάσκαλος", "teacher"], ["κρίμα", "pity / shame"], ["φάρμακο", "medicine"], ["πλανήτης", "planet"], ["τοίχος", "wall"], ["δέντρο", "tree"], ["καλώς ήρθες", "welcome (greeting)"], ["χαμένος", "lost"], ["πετυχαίνω", "to hit / succeed"], ["δευτερόλεπτο", "second (time)"], ["σταθμός", "station"], ["χάνομαι", "to get lost"], ["διευθυντής", "director / manager"], ["μεγαλώνω", "to grow up / raise"], ["διαλέγω", "to choose"], ["αθώος", "innocent"], ["ευρώ", "euro"], ["ρύζι", "rice"], ["παπούτσι", "shoe"], ["λιγάκι", "a little bit"], ["κατάλληλος", "suitable"], ["τρομερός", "terrible / tremendous"], ["εξαιρετικός", "excellent"], ["κρύος", "cold"], ["αναφορά", "report"], ["κυβέρνηση", "government"], ["παντρεμένος", "married"], ["εποχή", "era / season"], ["μακαρόνια", "pasta"], ["πλάτη", "back (body)"], ["έργο", "work / play / film"], ["κανονικός", "normal / regular"], ["πίνω", "to drink"], ["δάσος", "forest"], ["καταπληκτικός", "amazing"], ["λαιμός", "neck / throat"], ["κάρτα", "card"], ["δικαστής", "judge"], ["μπανάνα", "banana"], ["διαδρομή", "route"], ["πάρκο", "park"], ["επίπεδο", "level"], ["επικοινωνία", "communication"], ["καλησπέρα", "good evening"], ["απόγευμα", "afternoon"], ["χαλαρώνω", "to relax"], ["διασκεδάζω", "to have fun"], ["βόλτα", "walk / ride"], ["γενέθλια", "birthday"], ["χρόνια πολλά", "happy birthday / many happy returns"], ["μάρτυρας", "witness"], ["κρασί", "wine"], ["πιπέρι", "pepper (spice)"], ["φορτηγό", "truck"], ["δεδομένα", "data"], ["ελπίδα", "hope (noun)"], ["κοστίζω", "to cost"], ["ονομάζω", "to name / call"], ["εμφανίζομαι", "to appear"], ["βασίλισσα", "queen"], ["δίκαιος", "fair"], ["ένοχος", "guilty"], ["προτείνω", "to suggest"], ["κουτάλι", "spoon"], ["σιγά", "slowly / quietly"], ["ξένος", "foreign / stranger"], ["έγκλημα", "crime"], ["μαζεύω", "to gather"], ["τσάι", "tea"], ["εκκλησία", "church"], ["κτίριο", "building"], ["αναρωτιέμαι", "to wonder"], ["διεύθυνση", "address / direction"], ["δυστυχώς", "unfortunately"], ["ζευγάρι", "couple / pair"], ["αναλαμβάνω", "to take on"], ["πιρούνι", "fork"], ["προσεκτικός", "careful"], ["απολύτως", "absolutely"], ["ανεβαίνω", "to go up"], ["αρχείο", "file / record"], ["ασθενής", "patient"], ["ψάρι", "fish"], ["ιατρικός", "medical"], ["μαχαίρι", "knife"], ["ουρανός", "sky"], ["πάντως", "anyway"], ["φυσιολογικός", "normal (natural)"], ["ντουλάπα", "wardrobe"], ["πονάω", "to hurt / ache"], ["ηλικία", "age"], ["μυρίζω", "to smell"], ["συζήτηση", "conversation / discussion"], ["βίντεο", "video"], ["νησί", "island"], ["στολή", "uniform"], ["απασχολημένος", "busy"], ["θυμωμένος", "angry"], ["φοράω", "to wear"], ["τρένο", "train"], ["ταράτσα", "roof terrace"], ["έδαφος", "ground / soil"], ["αξία", "value"], ["βεβαίως", "certainly"], ["έρωτας", "love (passion)"], ["φάκελος", "folder / envelope"], ["στοίχημα", "bet"], ["μετάφραση", "translation"], ["γλώσσα", "language / tongue"], ["αστέρι", "star"], ["χαμόγελο", "smile"], ["δυνατόν", "possible"], ["συγκεκριμένος", "specific"], ["μολύβι", "pencil"], ["υπολογιστής", "computer"], ["κλειστός", "closed"], ["μπύρα", "beer"], ["έξοδος", "exit"], ["θύμα", "victim"], ["αλλαγή", "change (noun)"], ["βροχή", "rain"], ["τυρί", "cheese"], ["κουζίνα", "kitchen"], ["έγκυος", "pregnant"], ["μπάλα", "ball"], ["ποτάμι", "river"], ["δόξα", "glory"], ["τετράδιο", "notebook"], ["φανταστικός", "fantastic"], ["συλλαμβάνω", "to arrest"], ["αδύναμος", "weak"], ["λουλούδι", "flower"], ["ήρωας", "hero"], ["συμπαθώ", "to like (a person)"], ["άγιος", "saint / holy"], ["τόπος", "place"], ["χαλάω", "to ruin / break down"], ["κουρασμένος", "tired"], ["νότος", "south"], ["φούστα", "skirt"], ["εγκέφαλος", "brain"], ["χωριό", "village"], ["εμπιστοσύνη", "trust"], ["γελάω", "to laugh"], ["όριο", "limit"], ["ευθύνη", "responsibility"], ["δάχτυλο", "finger"], ["άνετος", "comfortable"], ["ευτυχώς", "fortunately"], ["όροφος", "floor (storey)"], ["ζακέτα", "cardigan"], ["πλούσιος", "rich"], ["ειρήνη", "peace"], ["αυγό", "egg"], ["διάρκεια", "duration"], ["ερωτευμένος", "in love"], ["ζώο", "animal"], ["τουαλέτα", "toilet"], ["εργαστήριο", "laboratory"], ["φύση", "nature"], ["θεραπεία", "treatment"], ["στάση", "stop (bus)"], ["μπουκάλι", "bottle"], ["δόντι", "tooth"], ["υγεία", "health"], ["βουνό", "mountain"], ["μοίρα", "fate"], ["ακριβός", "expensive"], ["μάχη", "fight / battle"], ["μαντεύω", "to guess"], ["ξεκάθαρος", "clear"], ["υπερβολικός", "excessive"], ["ενέργεια", "energy"], ["επιθυμία", "desire"], ["γουρούνι", "pig"], ["ομολογώ", "to confess"], ["προσφορά", "offer"], ["πτήση", "flight"], ["τέχνη", "art"], ["καπέλο", "hat"], ["κλαμπ", "club"], ["εμπειρία", "experience"], ["πρόταση", "proposal / sentence"], ["διάστημα", "space / interval"], ["μύτη", "nose"], ["πρόσβαση", "access"], ["πυροσβέστης", "firefighter"], ["εικόνα", "image / picture"], ["τολμάω", "to dare"], ["τρύπα", "hole"], ["βαθμός", "degree / grade"], ["διότι", "because (formal)"], ["απαραίτητος", "necessary"], ["αίσθηση", "sense / feeling"], ["συμπεριφορά", "behaviour"], ["ξεπερνάω", "to overcome"], ["κατάθεση", "testimony / deposit"], ["βέβαιος", "certain"], ["νοσοκόμα", "nurse"], ["προσπάθεια", "effort / attempt"], ["λεωφορείο", "bus"], ["διακοπές", "holidays / vacation"], ["εσωτερικός", "internal / interior"], ["αίθουσα", "hall"], ["βήμα", "step"], ["σύντροφος", "partner / companion"], ["συναντιέμαι", "to meet up"], ["σκοπεύω", "to intend"], ["παράνομος", "illegal"], ["εννοείται", "of course"], ["τουρίστας", "tourist"], ["σχολή", "school (faculty)"], ["γωνία", "corner"], ["συμβούλιο", "council"], ["στήθος", "chest"], ["σκοτεινός", "dark"], ["αποκλείω", "to rule out (αποκλείεται = impossible)"], ["πυροβολώ", "to shoot"], ["στρατός", "army"], ["ναρκωτικά", "drugs (narcotics)"], ["επίθεση", "attack"], ["εχθρός", "enemy"], ["ύποπτος", "suspect / suspicious"], ["κόλαση", "hell"], ["σκουπίδι", "garbage"], ["ψωμί", "bread"], ["αλάτι", "salt"], ["πρόσφατος", "recent"], ["τεστ", "test"], ["μάγειρας", "cook (person)"], ["ισχυρός", "powerful"], ["μεταφέρω", "to transport"], ["μεθυσμένος", "drunk"], ["ταυτότητα", "ID / identity"], ["κλήση", "call / ticket"], ["προειδοποιώ", "to warn"], ["συνηθισμένος", "ordinary"], ["μνήμη", "memory"], ["φόρεμα", "dress"], ["κοριτσάκι", "little girl"], ["φωτεινός", "bright"], ["αρχικός", "initial"], ["εξαρτώμαι", "to depend"], ["αστειεύομαι", "to joke"], ["χείλη", "lips"], ["πνεύμα", "spirit"], ["αδύνατος", "impossible / thin"], ["εξάλλου", "besides"], ["ταχύτητα", "speed"], ["κιόλας", "already / as well"], ["είσοδος", "entrance"], ["πανέμορφος", "gorgeous"], ["απαίσιος", "awful"], ["ντροπαλός", "shy"], ["χάπι", "pill"], ["αντίθετος", "opposite"], ["παράδειγμα", "example"], ["εστιατόριο", "restaurant"], ["δράση", "action"], ["οικονομικός", "economic / cheap"], ["υποστήριξη", "support"], ["άμεσος", "direct / immediate"], ["δικαιοσύνη", "justice"], ["τεμπέλης", "lazy"], ["γελοίος", "ridiculous"], ["καταραμένος", "cursed"], ["καπνός", "smoke"], ["γάτα", "cat"], ["εθνικός", "national"], ["ισχύω", "to be valid"], ["τσιγάρο", "cigarette"], ["γέφυρα", "bridge"], ["ηθοποιός", "actor"], ["καταστροφή", "disaster"], ["αποστολή", "mission"], ["ξεχωριστός", "distinct / special"], ["μακρινός", "distant"], ["σόου", "show"], ["ψεύτικος", "fake"], ["αγγλικά", "English (language)"], ["παράσταση", "performance"], ["υψηλός", "high"], ["ζώνη", "belt / zone"], ["άγνωστος", "unknown"], ["διάθεση", "mood"], ["κρυφός", "secret / hidden"], ["επεισόδιο", "episode"], ["διαφωνώ", "to disagree"], ["εφημερίδα", "newspaper"], ["γειτονιά", "neighbourhood"], ["αποκαλώ", "to call (name)"], ["διάσημος", "famous"], ["επιβιώνω", "to survive"], ["κούκλα", "doll"], ["ικανός", "capable"], ["πισίνα", "swimming pool"], ["γεύμα", "meal"], ["στρατιωτικός", "military"], ["μελέτη", "study"], ["χαμηλός", "low"], ["γυμνάζομαι", "to work out"], ["κεντρικός", "central"], ["γράμμα", "letter"], ["πανεπιστήμιο", "university"], ["συνεργάτης", "collaborator"], ["γυαλιά", "glasses"], ["σύνδεση", "connection"], ["διαδικασία", "procedure"], ["καριέρα", "career"], ["δαχτυλίδι", "ring"], ["χειρίζομαι", "to handle"], ["παραλίγο", "almost (nearly)"], ["συνέντευξη", "interview"], ["σκουπίζω", "to wipe / sweep"], ["βαριέμαι", "to be bored"], ["ξύλο", "wood"], ["τρομακτικός", "scary"], ["χοντρός", "fat / thick"], ["απέναντι", "opposite / across"], ["πηδάω", "to jump"], ["χαριτωμένος", "cute"], ["χρήσιμος", "useful"], ["αποφασίζω", "to decide"], ["πάγος", "ice"], ["επίσημος", "official"], ["ψήνω", "to bake / roast"], ["πάτωμα", "floor"], ["επιτροπή", "committee"], ["στρατιώτης", "soldier"], ["Αμερική", "America"], ["διάβολος", "devil"], ["αιώνας", "century"], ["ποδήλατο", "bicycle"], ["ζάχαρη", "sugar"], ["συναίσθημα", "feeling / emotion"], ["λαμβάνω", "to receive / take"], ["καίω", "to burn"], ["βιάζομαι", "to be in a hurry"], ["μοιράζομαι", "to share"], ["συνεργάζομαι", "to cooperate"], ["μπελάς", "trouble / nuisance"], ["παλεύω", "to fight / struggle"], ["συνηθίζω", "to be used to / usually do"], ["βράζω", "to boil"], ["πλάσμα", "creature"], ["έπειτα", "then / afterwards"], ["ικανότητα", "ability"], ["σκάλα", "stairs / ladder"], ["εισιτήριο", "ticket"], ["τρομάζω", "to frighten / get scared"], ["παραδίδω", "to hand over / deliver"], ["κλειδωμένος", "locked"], ["άγριος", "wild / fierce"], ["βλακεία", "stupidity"], ["παραδέχομαι", "to admit"], ["πολίτης", "citizen"], ["τηγανίζω", "to fry"], ["αρνούμαι", "to refuse / deny"], ["διδάσκω", "to teach"], ["πέρσι", "last year"], ["επισκέπτης", "visitor"], ["αναπνέω", "to breathe"], ["μαθητής", "pupil"], ["ήχος", "sound"], ["Κινέζος", "Chinese person"], ["χαρακτήρας", "character / personality"], ["μοντέλο", "model"], ["παγίδα", "trap"], ["προχθές", "day before yesterday"], ["ιδιοκτήτης", "owner"], ["θαύμα", "miracle"], ["συμβόλαιο", "contract"], ["αιτία", "cause"], ["μεταφορά", "transport / transfer"], ["διάλειμμα", "break / pause"], ["συνδέω", "to connect"], ["συναρπαστικός", "exciting"], ["κατεβάζω", "to take down / download"], ["μπάντα", "band / side"], ["θέα", "view"], ["μεθαύριο", "day after tomorrow"], ["οργάνωση", "organization"], ["εισαγγελέας", "prosecutor"], ["ντροπή", "shame"], ["τακτοποιώ", "to tidy up / sort out"], ["πτώμα", "corpse"], ["απειλή", "threat"], ["εξακολουθώ", "to continue / still be"], ["κολέγιο", "college"], ["κούνια", "swing / cradle"], ["απόσταση", "distance"], ["πολύτιμος", "precious"], ["ειδοποιώ", "to notify"], ["κοτόπουλο", "chicken (meat)"], ["δωρεάν", "free of charge"], ["ψηλά", "high up"], ["διασκεδαστικός", "fun / entertaining"], ["Ρώμη", "Rome"], ["παρουσίαση", "presentation"], ["ζημιά", "damage"], ["όρος", "term / condition"], ["σύνορο", "border"], ["εντυπωσιακός", "impressive"], ["μηχανικός", "engineer / mechanic"], ["ληστεία", "robbery"], ["άδειος", "empty"], ["χιλιόμετρο", "kilometre"], ["χαμηλά", "down low"], ["εκπομπή", "broadcast / show"], ["ουρά", "tail / queue"], ["περιοδικό", "magazine"], ["πρίγκιπας", "prince"], ["αποκαλύπτω", "to reveal"], ["επιστήμη", "science"], ["τοπικός", "local"], ["υπόγειο", "basement"], ["κίνητρο", "motive / incentive"], ["θέατρο", "theatre"], ["γιαούρτι", "yoghurt"], ["χρήση", "use / usage"], ["έρημος", "desert"], ["Μεξικό", "Mexico"], ["παράδοση", "tradition"], ["ηθικός", "moral / ethical"], ["διαζύγιο", "divorce"], ["χρέος", "debt / duty"], ["αυλή", "yard / courtyard"], ["ανώτερος", "superior / senior"], ["λύκειο", "high school"], ["ελιά", "olive"], ["υπομονή", "patience"], ["συσκευή", "device / appliance"], ["άνεμος", "wind"], ["εξοπλισμός", "equipment"], ["οφείλω", "to owe / ought"], ["διαγωνισμός", "competition / contest"], ["υπουργός", "minister"], ["Αμερικανός", "American"], ["άγγελος", "angel"], ["ανοησία", "nonsense"], ["νομικός", "legal / lawyer"], ["βάρκα", "small boat"], ["ρυθμός", "rhythm / pace"], ["σταφύλι", "grape"], ["στομάχι", "stomach"], ["σωρός", "pile / heap"], ["υποφέρω", "to suffer"], ["υγρός", "wet / damp"], ["κάστρο", "castle"], ["καλύπτω", "to cover"], ["ιστορικός", "historical / historian"], ["ένωση", "union"], ["βία", "violence"], ["ασθενοφόρο", "ambulance"], ["φράουλα", "strawberry"], ["ιερός", "sacred / holy"], ["έως", "until / up to"], ["στενός", "narrow / close"], ["απασχολώ", "to occupy / employ"], ["επίσκεψη", "visit"], ["ευχαρίστηση", "pleasure"], ["μορφή", "form / shape"], ["πρόθυμος", "willing"], ["επείγον", "urgent"], ["κρεμμύδι", "onion"], ["φεγγάρι", "moon"], ["ξεφορτώνομαι", "to get rid of"], ["επαγγελματικός", "professional (adj.)"], ["όρεξη", "appetite"], ["αντίδραση", "reaction"], ["ρομαντικός", "romantic"], ["τίτλος", "title"], ["ανάμνηση", "memory (recollection)"], ["ημερολόγιο", "diary / calendar"], ["περιουσία", "property / estate"], ["ταξιδεύω", "to travel"], ["νόμιμος", "legal / lawful"], ["σκόρδο", "garlic"], ["πιλότος", "pilot"], ["κλέφτης", "thief"], ["φρικτός", "horrible"], ["εργοστάσιο", "factory"], ["απογοήτευση", "disappointment"], ["διακόπτω", "to interrupt"], ["εξής", "following (ως εξής = as follows)"], ["σύμβολο", "symbol"], ["ουσία", "substance / essence"], ["δικαιολογία", "excuse"], ["μυρωδιά", "smell (noun)"], ["μπλέκω", "to get tangled / involved"], ["αγγούρι", "cucumber"], ["γιορτή", "celebration / holiday"], ["σκλάβος", "slave"], ["βράχος", "rock"], ["δεσμός", "bond / relationship"], ["ρίσκο", "risk"], ["αποφεύγω", "to avoid"], ["εξουσία", "authority / power"], ["υπογραφή", "signature"], ["καρότο", "carrot"], ["συγγραφέας", "author"], ["Ευρώπη", "Europe"], ["Εβραίος", "Jew"], ["θετικός", "positive"], ["σύλληψη", "arrest / conception"], ["απώλεια", "loss"], ["απαγορεύω", "to forbid"], ["παρουσία", "presence"], ["κυκλοφορία", "traffic / circulation"], ["ντύνομαι", "to get dressed"], ["συλλογή", "collection"], ["δίκτυο", "network"], ["ξάδερφος", "cousin"], ["κρέμα", "cream"], ["αυτοκρατορία", "empire"], ["έλεος", "mercy"], ["εγκαταλείπω", "to abandon"], ["δείγμα", "sample"], ["σβήνω", "to switch off / erase"], ["γενναίος", "brave"], ["στην υγειά μας", "cheers"], ["πύργος", "tower"], ["ψεύτης", "liar"], ["θησαυρός", "treasure"], ["ακυρώνω", "to cancel"], ["ενθουσιασμένος", "excited"], ["ειδήσεις", "news"], ["κάτοικος", "resident"], ["κανάλι", "channel"], ["μπερδεμένος", "confused"], ["εκτέλεση", "execution / performance"], ["σκάφος", "boat / vessel"], ["ελικόπτερο", "helicopter"], ["ξινός", "sour"], ["οδηγία", "instruction"], ["φτερό", "wing / feather"], ["αναγκάζω", "to force / compel"], ["εντύπωση", "impression"], ["ακουμπάω", "to touch / lean on"], ["αμφιβολία", "doubt"], ["ανάλυση", "analysis"], ["προέρχομαι", "to come from / originate"], ["συμμορία", "gang"], ["κλαίω", "to cry"], ["μετακομίζω", "to move (house)"], ["υπηρεσία", "service"], ["πληγώνω", "to hurt (feelings)"], ["σάντουιτς", "sandwich"], ["πιθανώς", "probably"], ["γνωριμία", "acquaintance"], ["κολύμπι", "swimming"], ["αναζητώ", "to seek"], ["βασίζομαι", "to rely on"], ["αλμυρός", "salty"], ["εμποδίζω", "to prevent / block"], ["αίτηση", "application / request"], ["συνθήκη", "condition / treaty"], ["ανάσα", "breath"], ["διαμάντι", "diamond"], ["ευλογία", "blessing"], ["ποινή", "penalty / sentence"], ["τσέπη", "pocket"], ["κοστούμι", "suit"], ["θάρρος", "bravery"], ["κουμπί", "button"], ["ζωγράφος", "painter"], ["ασφαλώς", "of course (formal)"], ["σημείωμα", "note (written)"], ["φρέσκος", "fresh"], ["δημόσιος", "public"], ["κερί", "candle"], ["ασυνήθιστος", "unusual"], ["πικρός", "bitter"], ["ρεύμα", "current / electricity / draught"], ["αρνητικός", "negative"], ["χιόνι", "snow"], ["αλκοόλ", "alcohol"], ["ανά", "per"], ["πίτσα", "pizza"], ["συστήνω", "to introduce / recommend"], ["στρατηγός", "general"], ["τέρας", "monster"], ["περιστατικό", "incident"], ["σπασμένος", "broken"], ["κρίνω", "to judge"], ["ακτή", "coast"], ["βασίλειο", "kingdom"], ["παρακολούθηση", "monitoring / surveillance"], ["μονοπάτι", "path / trail"], ["καταιγίδα", "storm"], ["πορτοφόλι", "wallet"], ["αγκαλιά", "hug / embrace"], ["παγωτό", "ice cream"], ["βραβείο", "prize / award"], ["Ιταλία", "Italy"], ["φιλικός", "friendly"], ["ίσιος", "straight (not curved)"], ["παλτό", "coat"], ["σελίδα", "page"], ["σιωπή", "silence"], ["κρυμμένος", "hidden"], ["γραμματέας", "secretary"], ["έμπορος", "merchant / dealer"], ["συναισθηματικός", "emotional"], ["σαμπάνια", "champagne"], ["κατάρα", "curse"], ["ευαίσθητος", "sensitive"], ["σκόνη", "dust"], ["τεχνολογία", "technology"], ["σκέτος", "plain / straight"], ["κλινική", "clinic"], ["βλάπτω", "to harm"], ["αηδιαστικός", "disgusting"], ["καταφύγιο", "shelter / refuge"], ["ανάβω", "to light / switch on"], ["θυμώνω", "to get angry"], ["πνίγομαι", "to drown / choke"], ["στρογγυλός", "round"], ["διατάζω", "to order (command)"], ["περίπλοκος", "complicated"], ["κατάστημα", "store / shop"], ["σκιά", "shadow"], ["λόφος", "hill"], ["βιβλιοθήκη", "library / bookcase"], ["οπουδήποτε", "anywhere"], ["αρπάζω", "to grab / snatch"], ["μισθός", "salary"], ["μικρότερος", "smaller / younger"], ["προϊόν", "product"], ["φίδι", "snake"], ["νύφη", "bride"], ["αναμονή", "waiting"], ["αμφιβάλλω", "to doubt"], ["φέτος", "this year"], ["γιορτάζω", "to celebrate"], ["επιστήμονας", "scientist"], ["πλατύς", "wide"], ["ψώνια", "shopping"], ["κολλητός", "close buddy"], ["προπονητής", "coach"], ["θαυμάσιος", "marvellous"], ["ιερέας", "priest"], ["στρατόπεδο", "camp"], ["έκφραση", "expression"], ["εγγονός", "grandchild"], ["κληρονομιά", "inheritance / heritage"], ["πρακτικός", "practical"], ["σοκολάτα", "chocolate"], ["εφόσον", "provided that / since"], ["κινούμαι", "to move (oneself)"], ["παγκόσμιος", "worldwide / global"], ["τελετή", "ceremony"], ["μετακινώ", "to move (something)"], ["προδίδω", "to betray"], ["συμπεριφέρομαι", "to behave"], ["λαός", "people (nation)"], ["ηλεκτρικός", "electric"], ["αμοιβή", "payment / fee"], ["Αφρική", "Africa"], ["λεπτός", "thin (slim / fine)"], ["τραύμα", "trauma / wound"], ["μεσάνυχτα", "midnight"], ["ξεκαθαρίζω", "to clarify"], ["σπάνιος", "rare"], ["νύχι", "nail (finger)"], ["μέθοδος", "method"], ["ομιλία", "speech / talk"], ["κατεύθυνση", "direction"], ["βλέμμα", "gaze / look"], ["μυστήριο", "mystery"], ["όσον", "as far as"], ["διατηρώ", "to maintain / keep"], ["δόση", "dose / instalment"], ["παρεμπιπτόντως", "by the way"], ["φυτό", "plant"], ["ποδόσφαιρο", "football (soccer)"], ["ζηλεύω", "to be jealous"], ["ανακοίνωση", "announcement"], ["μισός", "half (adj.)"], ["αποτελώ", "to constitute / make up"], ["σφαίρα", "bullet / sphere"], ["Γαλλία", "France"], ["Γερμανία", "Germany"], ["χρονικός", "time (adj.)"], ["ελευθερώνω", "to free / release"], ["εφιάλτης", "nightmare"], ["σούπερ", "super"], ["ίντερνετ", "internet"], ["εξήγηση", "explanation"], ["βασιλικός", "royal"], ["πουκάμισο", "shirt"], ["εμπορικός", "commercial"], ["επομένως", "therefore"], ["τατουάζ", "tattoo"], ["θάλαμος", "ward / chamber"], ["χειρουργείο", "operating room"], ["φοβισμένος", "frightened"], ["φασαρία", "fuss / noise"], ["τοποθεσία", "location"], ["κοινωνία", "society"], ["διπλός", "double"], ["καναπές", "sofa"], ["μάσκα", "mask"], ["πιστόλι", "pistol"], ["φύλακας", "guard / keeper"], ["γκαράζ", "garage"], ["ξαπλώνω", "to lie down"], ["ενεργός", "active"], ["αρκούδα", "bear"], ["ζήτημα", "issue"], ["αφαιρώ", "to remove / subtract"], ["παγωμένος", "frozen"], ["προσωρινός", "temporary"], ["δηλητήριο", "poison"], ["σύμπτωση", "coincidence"], ["άγχος", "stress / anxiety"], ["γριά", "old woman"], ["αποδεικνύω", "to prove"], ["σημερινός", "today's / current"], ["παράλογος", "absurd"], ["ταξιδιώτης", "traveller"], ["ποντίκι", "mouse"], ["ρομπότ", "robot"], ["διαθέσιμος", "available"], ["επιφάνεια", "surface"], ["ευγνώμων", "grateful"], ["γνώση", "knowledge"], ["παρεξήγηση", "misunderstanding"], ["ψυχρός", "cold (aloof)"], ["μεσημεριανό", "lunch"], ["βόμβα", "bomb"], ["επιτίθεμαι", "to attack"], ["αξιωματικός", "officer"], ["καπετάνιος", "captain"], ["ημερομηνία", "date (calendar)"], ["χαλαρός", "relaxed"], ["φάρμα", "farm"], ["οργή", "rage"], ["οστό", "bone"], ["ελάχιστος", "minimal / very little"], ["αντάλλαγμα", "in return"], ["γείτονας", "neighbour"], ["περιγραφή", "description"], ["λύπη", "sadness"], ["ασανσέρ", "elevator"], ["ενοχλητικός", "annoying"], ["κουρτίνα", "curtain"], ["έκτακτος", "emergency / extraordinary"], ["πρόοδος", "progress"], ["αφότου", "since (time)"], ["τροφή", "food / nourishment"], ["άμυνα", "defence"], ["θέληση", "will / willpower"], ["ικετεύω", "to beg"], ["δανείζομαι", "to borrow"], ["μαθηματικά", "mathematics"], ["καλώδιο", "cable"], ["ψυγείο", "fridge"], ["γλιτώνω", "to escape / be spared"], ["σκάω", "to burst"], ["τρομοκρατία", "terrorism"], ["βεβαιώνομαι", "to make sure"], ["ασχολούμαι", "to be busy with"], ["καλοσύνη", "kindness"], ["εξέλιξη", "development / evolution"], ["υπουργείο", "ministry"], ["ευχαριστημένος", "pleased"], ["μπισκότο", "biscuit"], ["χαλί", "carpet"], ["γάντι", "glove"], ["ασθένεια", "illness"], ["φύλλο", "leaf / sheet"], ["φέρομαι", "to behave / treat"], ["σενάριο", "script / scenario"], ["πληγή", "wound"], ["ξοδεύω", "to spend (money)"], ["ένστικτο", "instinct"], ["αντίπαλος", "opponent"], ["απολύω", "to dismiss / fire"], ["ξανθός", "blond"], ["κατανοητός", "understandable"], ["επιλέγω", "to select"], ["κοινότητα", "community"], ["ευχαρίστως", "gladly"], ["Λονδίνο", "London"], ["εξοχή", "countryside"], ["ξεκούραση", "rest"], ["φιλενάδα", "girlfriend (friend)"], ["μήλο", "apple"], ["ερωτικός", "love / erotic"], ["σαπούνι", "soap"], ["καλλιτέχνης", "artist"], ["σπορ", "sport"], ["έλλειψη", "lack"], ["μεσημέρι", "noon"], ["οπωσδήποτε", "definitely"], ["γήπεδο", "stadium / pitch"], ["δοκιμή", "trial / test"], ["παλάτι", "palace"], ["νεύρο", "nerve"], ["λάμπα", "lamp"], ["συνείδηση", "conscience"], ["διανομή", "distribution"], ["παιδάκι", "little kid"], ["ονειρεύομαι", "to dream"], ["γενναιόδωρος", "generous"], ["αποκλειστικά", "exclusively"], ["αναστατωμένος", "upset / agitated"], ["ερώτημα", "query / question"], ["μόδα", "fashion"], ["σχήμα", "shape"], ["ανάπτυξη", "growth / development"], ["οδοντόβουρτσα", "toothbrush"], ["εγγύηση", "guarantee"], ["βαλίτσα", "suitcase"], ["διοίκηση", "administration"], ["γερμανικά", "German (language)"], ["σάρκα", "flesh"], ["παραγγέλνω", "to order (food)"], ["ανεβάζω", "to raise / upload"], ["τούρτα", "cake"], ["όρκος", "oath"], ["σούπα", "soup"], ["εγχείρηση", "surgery"], ["βάρδια", "shift (work)"], ["κεφάλαιο", "chapter / capital"], ["πολιτισμός", "civilization / culture"], ["αναζήτηση", "search"], ["αισθάνομαι", "to sense (formal)"], ["υπόψη", "in mind (to take into account)"], ["σερβιτόρος", "waiter"], ["ντυμένος", "dressed"], ["πτώση", "fall / drop"], ["ύφασμα", "fabric"], ["μουσείο", "museum"], ["βίαιος", "violent"], ["Παρίσι", "Paris"], ["μάγος", "magician"], ["μερίδιο", "share / portion"], ["βενζίνη", "petrol"], ["κατεβαίνω", "to go down"], ["σιχαίνομαι", "to loathe"], ["επισκέπτομαι", "to visit"], ["ντους", "shower"], ["ανθρωπότητα", "humanity"], ["σεζόν", "season (TV / sport)"], ["Βρετανία", "Britain"], ["καθρέφτης", "mirror"], ["καταγράφω", "to record / log"], ["νόστιμος", "tasty"], ["οπτικός", "visual / optical"], ["δίδυμος", "twin"], ["στούντιο", "studio"], ["φροντίδα", "care"], ["προδότης", "traitor"], ["θάβω", "to bury"], ["κουβέρτα", "blanket"], ["τρόφιμα", "groceries / food items"], ["συγγενής", "relative"], ["προφίλ", "profile"], ["άβολος", "awkward / uncomfortable"], ["επανάσταση", "revolution"], ["σοκ", "shock"], ["κουράγιο", "nerve, heart"], ["οργανισμός", "organism / organization"], ["μηχάνημα", "machine / device"], ["ξύπνιος", "awake"], ["ανάποδα", "upside down / backwards"], ["χαιρετώ", "to greet"], ["καύσιμο", "fuel"], ["κασέτα", "cassette"], ["τακτικός", "regular"], ["χάος", "chaos"], ["καρπός", "fruit / wrist"], ["πυρετός", "fever"], ["σπαταλώ", "to waste"], ["καθημερινός", "daily / everyday"], ["σεντόνι", "bed sheet"], ["τυχαίος", "random / chance"], ["πλήθος", "crowd"], ["θλιβερός", "sad / dismal"], ["νικητής", "winner"], ["μπλούζα", "blouse / top"], ["χυμός", "juice"], ["επιμένω", "to insist"], ["ώσπου", "until (conj.)"], ["επιστημονικός", "scientific"], ["ροκ", "rock (music)"], ["πονοκέφαλος", "headache"], ["καρφί", "nail (metal)"], ["κατασκήνωση", "camping"], ["αέριο", "gas"], ["κατανοώ", "to comprehend"], ["γοητευτικός", "charming"], ["απαγωγή", "kidnapping"], ["ολοκληρώνω", "to complete"], ["δαγκώνω", "to bite"], ["πλαστικός", "plastic"], ["βιβλιοπωλείο", "bookshop"], ["χημικός", "chemical"], ["προειδοποίηση", "warning"], ["κυριολεκτικά", "literally"], ["ενήλικας", "adult"], ["άσχετος", "irrelevant"], ["προσλαμβάνω", "to hire"], ["σινεμά", "cinema"], ["έφηβος", "teenager"], ["δράστης", "perpetrator"], ["σύννεφο", "cloud"], ["πρόσκληση", "invitation"], ["κούπα", "mug"], ["διαφυγή", "escape"], ["κρεμάω", "to hang"], ["καρδιακός", "cardiac / heart (adj.)"], ["επηρεάζω", "to affect"], ["φαρμακείο", "pharmacy"], ["ιδιοφυΐα", "genius"], ["οξυγόνο", "oxygen"], ["γενιά", "generation"], ["μοναχικός", "lonely / solitary"], ["πάρκινγκ", "parking"], ["επαναλαμβάνω", "to repeat"], ["μέτωπο", "forehead / front"], ["στάδιο", "stage / stadium"], ["καταδίκη", "conviction"], ["ελαφρύς", "light (weight)"], ["οθόνη", "screen"], ["παραμύθι", "fairy tale"], ["μήκος", "length"], ["πρωταθλητής", "champion"], ["λιμάνι", "port / harbour"], ["περιβάλλον", "environment"], ["γυμνάσιο", "middle school"], ["εραστής", "lover"], ["φρουρά", "guard"], ["κελί", "cell"], ["διοικητής", "commander"], ["φαΐ", "food (colloq.)"], ["φτηνός", "cheap"], ["διαλύω", "to dissolve / break up"], ["αρτοποιείο", "bakery"], ["γούστο", "taste (preference)"], ["συνέπεια", "consequence"], ["κόσμημα", "jewel"], ["υποψήφιος", "candidate"], ["πάντοτε", "always (formal)"], ["κλοπή", "theft"], ["κέικ", "cake (sponge)"], ["ανεξάρτητος", "independent"], ["διαφωνία", "disagreement"], ["ανακατεύομαι", "to meddle / get involved"], ["πιέζω", "to press / pressure"], ["άμμος", "sand"], ["δραπετεύω", "to escape"], ["ηγέτης", "leader"], ["απελπισμένος", "desperate"], ["κλουβί", "cage"], ["φυλακισμένος", "prisoner / imprisoned"], ["κοιλιά", "belly"], ["σεφ", "chef"], ["απομακρύνομαι", "to move away"], ["δύση", "west / sunset"], ["κρεοπωλείο", "butcher's shop"], ["θαυμάζω", "to admire"], ["απαλός", "soft / gentle"], ["επαγγελματίας", "professional (person)"], ["μόνιμος", "permanent"], ["αυστηρός", "strict"], ["σερβίρω", "to serve"], ["αγοράκι", "little boy"], ["εργαλείο", "tool"], ["ειρηνικός", "peaceful"], ["ταυτόχρονα", "simultaneously"], ["ενεργοποιώ", "to activate"], ["πόντος", "point (score)"], ["προσθέτω", "to add"], ["επέμβαση", "operation / intervention"], ["πρόθεση", "intention"], ["παρέχω", "to provide"], ["δάκρυ", "tear"], ["πίτα", "pie"], ["αφοσίωση", "devotion"], ["ταβέρνα", "taverna"], ["ανώνυμος", "anonymous"], ["φούρνος", "oven"], ["αυτόματος", "automatic"], ["σημείωση", "note / remark"], ["ακρόαση", "hearing / audition"], ["ιδανικός", "ideal"], ["ύψος", "height"], ["αμαρτία", "sin"], ["φρούτο", "fruit"], ["κοροϊδεύω", "to mock / tease"], ["χάρη", "favour / grace"], ["διαδίκτυο", "internet (Greek term)"], ["φακός", "flashlight / lens"], ["ατμόσφαιρα", "atmosphere"], ["συγκρότημα", "group / band / complex"], ["καφετέρια", "cafe"], ["συγκάτοικος", "roommate"], ["σχολικός", "school (adj.)"], ["σαλόνι", "living room"], ["ανατινάζω", "to blow up"], ["δημοτικό", "primary school"], ["ακτίνα", "ray / radius"], ["ανατολή", "east / sunrise"], ["θερμοκρασία", "temperature"], ["βασανίζω", "to torture"], ["ουσιαστικός", "essential / substantial"], ["μαγειρεύω", "to cook"], ["θλίψη", "sorrow"], ["προσβολή", "insult"], ["νεότερος", "younger / newer"], ["ώμος", "shoulder"], ["σφιχτός", "tight"], ["κλωτσάω", "to kick"], ["καρπούζι", "watermelon"], ["χόρτο", "grass / herb"], ["λεωφόρος", "avenue"], ["αηδία", "disgust"], ["σωματικός", "physical"], ["καυγάς", "quarrel"], ["σακάκι", "jacket"], ["στρατηγική", "strategy"], ["οδήγηση", "driving"], ["όρθιος", "standing / upright"], ["κύμα", "wave"], ["τρόμος", "terror"], ["διευθύνω", "to manage / direct"], ["έτος", "year (formal)"], ["περιέχω", "to contain"], ["κοντινός", "nearby"], ["τυπικός", "typical / formal"], ["μανιτάρι", "mushroom"], ["πολεμικός", "war (adj.)"], ["συμμετέχω", "to participate"], ["γυμναστήριο", "gym"], ["διακοπή", "interruption"], ["κατάλογος", "catalogue / menu"], ["συναυλία", "concert"], ["τραγικός", "tragic"], ["απόδραση", "escape (noun)"], ["έντονος", "intense"], ["άθλιος", "wretched"], ["σταυρός", "cross"], ["διαρροή", "leak"], ["βραδινό", "dinner (evening meal)"], ["επένδυση", "investment"], ["σκηνοθέτης", "film director"], ["ψυχραιμία", "composure"], ["αντιστέκομαι", "to resist"], ["αποτυγχάνω", "to fail"], ["χώμα", "soil"], ["χοιρινό", "pork"], ["ζόρι", "strain / difficulty"], ["ραδιόφωνο", "radio"], ["σπηλιά", "cave"], ["κλασικός", "classic(al)"], ["λάστιχο", "rubber / tyre / hose"], ["χαμός", "chaos / loss"], ["ασήμαντος", "insignificant"], ["χλόη", "lawn / grass"], ["εξάσκηση", "practice"], ["ψυχολόγος", "psychologist"], ["τούνελ", "tunnel"], ["ευθεία", "straight line"], ["χειρουργός", "surgeon"], ["υποστηρίζω", "to support / maintain"], ["άλλωστε", "besides / anyway"], ["μοσχάρι", "beef"], ["ισχυρίζομαι", "to claim"], ["επέτειος", "anniversary"], ["στηρίζω", "to support / prop up"], ["πρωθυπουργός", "prime minister"], ["πετρέλαιο", "oil"], ["ανάλογος", "proportional / analogous"], ["ορισμένος", "certain / specific"], ["πώληση", "sale"], ["αντίσταση", "resistance"], ["ισπανικά", "Spanish (language)"], ["αναίσθητος", "unconscious"], ["έκδοση", "edition / version"], ["πρόκληση", "challenge / provocation"], ["χριστουγεννιάτικος", "Christmas (adj.)"], ["σχοινί", "rope"], ["θρύλος", "legend"], ["αξιόπιστος", "reliable"], ["χαρακτηριστικό", "characteristic"], ["προσγειώνομαι", "to land"], ["αρνί", "lamb"], ["χτίζω", "to build"], ["σπρώχνω", "to push"], ["υπολογίζω", "to calculate"], ["φόρμα", "form / tracksuit"], ["πιστωτικός", "credit (adj.)"], ["εγκληματίας", "criminal"], ["μανούλα", "mummy"], ["διάσωση", "rescue"], ["ατυχία", "misfortune"], ["σύνταξη", "pension"], ["γαμπρός", "groom / son-in-law"], ["δυνατότητα", "possibility"], ["ρωσικά", "Russian (language)"], ["συνταγή", "recipe / prescription"], ["πέρασμα", "passage"], ["κολλημένος", "stuck"], ["μπότα", "boot"], ["κεφτές", "meatball"], ["κουλ", "cool"], ["δυσκολεύομαι", "to have difficulty"], ["χιούμορ", "humour"], ["περιλαμβάνω", "to include"], ["λαμπρός", "brilliant"], ["τείχος", "city wall"], ["λυπημένος", "sad"], ["Βερολίνο", "Berlin"], ["ζούγκλα", "jungle"], ["κοιλάδα", "valley"], ["επίτηδες", "on purpose"], ["αρουραίος", "rat"], ["αύξηση", "increase / raise"], ["πανικός", "panic"], ["ηλεκτρονικός", "electronic"], ["επιθετικός", "aggressive"], ["αγενής", "rude"], ["λιοντάρι", "lion"], ["δραστηριότητα", "activity"], ["σπανάκι", "spinach"], ["επιρροή", "influence"], ["προμήθεια", "supply / commission"], ["διακριτικός", "discreet"], ["αόρατος", "invisible"], ["τσιμπάω", "to pinch / sting"], ["προδοσία", "betrayal"], ["πλάι", "beside"], ["συνδυασμός", "combination"], ["οπαδός", "fan / supporter"], ["κατάρρευση", "collapse"], ["πινακίδα", "sign / plate"], ["διαβατήριο", "passport"], ["ίσα", "straight / equal"], ["δεύτερον", "secondly"], ["αντιλαμβάνομαι", "to perceive / realize"], ["τηλεφωνικός", "telephone (adj.)"], ["άσκηση", "exercise"], ["αθλητικός", "athletic / sports (adj.)"], ["στροφή", "turn / bend"], ["λάχανο", "cabbage"], ["σάλτσα", "sauce"], ["κάθισμα", "seat"], ["ρεπό", "day off"], ["απομόνωση", "isolation"], ["παίκτης", "player"], ["μείωση", "reduction"], ["τίγρη", "tiger"], ["υπερασπίζομαι", "to defend"], ["κρεβατοκάμαρα", "bedroom"], ["ένταση", "tension / intensity"], ["προπόνηση", "training"], ["παγιδευμένος", "trapped"], ["δεκαετία", "decade"], ["συνοδεύω", "to accompany"], ["διαθήκη", "will (testament)"], ["προαγωγή", "promotion"], ["ψυχίατρος", "psychiatrist"], ["πείραμα", "experiment"], ["ούζο", "ouzo"], ["μπλουζάκι", "T-shirt"], ["επιστολή", "letter (formal)"], ["διαφήμιση", "advertisement"], ["πεινασμένος", "hungry"], ["τρίχα", "hair (strand)"], ["γυρεύω", "to seek / ask for"], ["θυσία", "sacrifice"], ["εκλογές", "elections"], ["οικονομία", "economy"], ["σύνδεσμος", "link / association"], ["σύγκρουση", "conflict / clash"], ["σημαία", "flag"], ["χωράφι", "field (farmland)"], ["Ιαπωνία", "Japan"], ["λεμόνι", "lemon"], ["πορτοκάλι", "orange (fruit)"], ["προτεραιότητα", "priority"], ["Θεσσαλονίκη", "Thessaloniki"], ["μαξιλάρι", "pillow"], ["σαφής", "clear (unambiguous)"], ["εμπόριο", "trade"], ["άρωμα", "scent / perfume"], ["μέταλλο", "metal"], ["κόκαλο", "bone (colloq.)"], ["αγελάδα", "cow"], ["προσωπικότητα", "personality"], ["υγιής", "healthy"], ["δυναμικός", "dynamic"], ["άστεγος", "homeless"], ["αποτελεσματικός", "effective"], ["παραιτούμαι", "to resign"], ["σωτηρία", "salvation"], ["κλεμμένος", "stolen"], ["αντικαθιστώ", "to replace"], ["κερνάω", "to treat (someone)"], ["νυχτερινός", "night (adj.)"], ["ελκυστικός", "attractive"], ["πάρα", "too (much) / very"], ["σωλήνας", "pipe"], ["πείθω", "to convince"], ["εμπόδιο", "obstacle"], ["αρχαίος", "ancient"], ["βλάβη", "breakdown / damage"], ["κανονισμός", "regulation"], ["λιποθυμώ", "to faint"], ["κατανόηση", "understanding"], ["Καναδάς", "Canada"], ["βιολογικός", "biological / organic"], ["σακούλα", "plastic bag"], ["μοναξιά", "loneliness"], ["έντομο", "insect"], ["ποσοστό", "percentage"], ["πρόβατο", "sheep"], ["απόπειρα", "attempt"], ["μαλώνω", "to argue / scold"], ["ντόπιος", "local (person)"], ["τραυματίζομαι", "to get injured"], ["άστρο", "star (celestial)"], ["φρένο", "brake"], ["νοικιάζω", "to rent"], ["Ρωμαίος", "Roman"], ["περιπέτεια", "adventure"], ["υποχρεωμένος", "obliged"], ["δυσάρεστος", "unpleasant"], ["πλούτος", "wealth"], ["δυστυχισμένος", "unhappy"], ["παγώνω", "to freeze"], ["τίμημα", "price (cost paid)"], ["προετοιμασία", "preparation"]];
+for(const [k,v] of FREQ_EL) if(!(k in GLOSS_EL)) GLOSS_EL[k]=v;
+// translations reviewed to use each word's most common meaning
+const FIX_EL = {"όλος": "all", "κατά": "against", "χρόνος": "time", "θέση": "position", "ωραία": "nice", "κύριος": "mister", "έργο": "project", "στοιχείο": "details", "άτομο": "person", "νομίζω": "think", "εργασία": "work", "φέρω": "carry", "εποχή": "era", "βγάζω": "take-out", "βγαίνω": "go-out", "σειρά": "order", "κίνηση": "movement", "δεδομένο": "data", "πρόταση": "proposal", "πόσο": "how-much", "γεννάω": "give-birth", "υπόθεση": "affair", "εφημερίδα": "newspaper", "πραγματοποιώ": "carry-out", "ανώτερος": "higher", "διάστημα": "interval", "χτύπημα": "hit", "καθόλου": "at-all", "φορέας": "agency", "βέβαια": "of-course", "μηχανή": "machine", "τονίζω": "emphasise", "προβλέπω": "predict", "προσέχω": "careful", "σκηνή": "scene", "φύλο": "gender", "ζώνη": "zone", "ψήφιση": "voting", "συμπληρώνω": "fill-in", "εργατικός": "labour", "νους": "mind", "αρμόδιος": "in-charge", "έδρα": "seat", "ισχύς": "power", "αδύνατος": "impossible", "νεαρός": "young", "τρόφιμα": "foodstuffs", "στήνω": "set-up", "μαλλί": "hair", "πρότυπος": "model", "λοιπός": "rest", "σκάφος": "boat", "πολεμικός": "war", "στροφή": "turn", "χαλάω": "break", "βιολογικός": "biological", "ανεβάζω": "raise", "πειράζω": "bother", "καλημέρα": "good-morning", "ταμείο": "fund", "οίκος": "house", "προλαμβάνω": "prevent", "παντρεύω": "marry", "απορία": "question", "καρπός": "fruit", "μετοχή": "share", "σωματείο": "union", "εξυπηρετώ": "serve", "γυναικείος": "female", "στρώμα": "layer", "ιατρός": "doctor", "διοργανώνω": "organise", "διαθήκη": "will", "πληροφόρηση": "information", "απλώνω": "spread", "λύκειο": "high-school", "γυμνάσιο": "middle-school", "κόπος": "trouble", "προέλευση": "origin", "πετρέλαιο": "oil", "φυλάγω": "guard", "περιουσία": "fortune", "κέφι": "mood", "αμοιβή": "fee", "βιτρίνα": "shop-window", "ισόγειο": "ground-floor", "κρυώνω": "cold", "σβήνω": "turn-off", "τουλάχιστον": "at-least", "τούρτα": "cake", "χάνομαι": "get-lost", "ψηλά": "high-up", "ψόφιος": "dead", "ψυχρός": "cold", "ρεπό": "day-off", "πανσέληνος": "full-moon", "παγωτό": "ice-cream", "ρόπαλο": "bat"};
+Object.assign(GLOSS_EL, FIX_EL, {προκειμένου:'in order to'});
+// hyphens were only placeholders for spaces; real hyphenated English words stay
+for(const G of [GLOSS_EL, GLOSS_PT]) for(const k in G) if(!['so-called','clear-cut'].includes(G[k])) G[k]=G[k].replace(/-/g,' ');
+Object.assign(GLOSS_PT, {perceber:'understand', desenvolvimento:'development', garantir:'guarantee', dever:'must', todavia:'however'});
+// words grouped by a shared Greek prefix; their translations only fill gaps
+const PREFIX_EL = [{"key": "neg", "label": "α- / αν-", "meaning": "not, un-", "words": {"άγνωστος": "unknown", "αθώος": "innocent", "ανεξάρτητος": "independent", "αδύνατος": "impossible", "άδικος": "unfair", "άχρηστος": "useless", "αόρατος": "invisible", "ανίκανος": "incapable", "ανώνυμος": "anonymous", "άπειρος": "infinite", "άσχετος": "irrelevant", "αβέβαιος": "uncertain", "ακίνητος": "motionless", "άτυχος": "unlucky", "ανήσυχος": "worried", "ανόητος": "foolish", "αναίσθητος": "unconscious", "ακατάλληλος": "unsuitable", "άγραφος": "unwritten", "αμέτρητος": "countless", "αναλφάβητος": "illiterate", "ασήμαντος": "insignificant", "άυπνος": "sleepless", "ανεύθυνος": "irresponsible", "ανεργία": "unemployment", "αδιαφορία": "indifference"}}, {"key": "ana", "label": "ανα-", "meaning": "up, again", "words": {"ανεβαίνω": "go up", "αναπνέω": "breathe", "ανακαλύπτω": "discover", "αναγνωρίζω": "recognise", "αναφέρω": "mention", "αναλαμβάνω": "undertake", "αναπτύσσω": "develop", "αναζητώ": "seek", "ανακοινώνω": "announce", "αναβάλλω": "postpone", "αναχώρηση": "departure", "ανάλυση": "analysis", "ανάπτυξη": "development", "αναγέννηση": "rebirth", "ανακαίνιση": "renovation", "αναμονή": "wait", "ανάμνηση": "memory", "ανάσταση": "resurrection", "αναθεώρηση": "revision", "ανακύκλωση": "recycling", "ανακουφίζω": "relieve", "αναλογία": "ratio", "ανάγνωση": "reading", "αναπαράγω": "reproduce"}}, {"key": "anti", "label": "αντι-", "meaning": "against, counter", "words": {"αντίθετος": "opposite", "αντιδρώ": "react", "αντίδραση": "reaction", "αντίπαλος": "rival", "αντίσταση": "resistance", "αντιμετωπίζω": "face", "αντικαθιστώ": "replace", "αντίγραφο": "copy", "αντιγράφω": "copy", "αντιπροσωπεύω": "represent", "αντιπρόσωπος": "representative", "αντιλαμβάνομαι": "perceive", "αντίληψη": "perception", "αντίφαση": "contradiction", "αντίθεση": "contrast", "αντιβιοτικό": "antibiotic", "αντίδοτο": "antidote", "αντιπάθεια": "dislike", "αντικείμενο": "object", "αντίκτυπος": "impact", "αντίστροφος": "reverse", "αντιπολίτευση": "opposition"}}, {"key": "apo", "label": "απο-", "meaning": "away, off", "words": {"αποφασίζω": "decide", "αποφεύγω": "avoid", "αποκτώ": "acquire", "αποτέλεσμα": "result", "αποστολή": "mission", "απογείωση": "takeoff", "αποχαιρετώ": "say goodbye", "αποθήκη": "storage", "αποδέχομαι": "accept", "αποδεικνύω": "prove", "αποκαλύπτω": "reveal", "απομακρύνω": "distance", "απορρίπτω": "reject", "αποτυγχάνω": "fail", "αποσύρω": "withdraw", "αποκλείω": "exclude", "απολύω": "dismiss", "αποσυνδέω": "disconnect", "αποχή": "abstention", "αποχώρηση": "withdrawal", "αποκατάσταση": "restoration", "απόσταση": "distance", "απόφαση": "decision", "αποβάθρα": "platform"}}, {"key": "dia", "label": "δια-", "meaning": "through, across", "words": {"διαβάζω": "read", "διαφορά": "difference", "διαδρομή": "route", "διάλογος": "dialogue", "διαλέγω": "choose", "διακοπή": "interruption", "διάλειμμα": "break", "διαφωνώ": "disagree", "διασχίζω": "cross", "διαδίδω": "spread", "διαδίκτυο": "internet", "διάμετρος": "diameter", "διαφήμιση": "advert", "διάγνωση": "diagnosis", "διαθέτω": "possess", "διαρκώ": "last", "διατηρώ": "maintain", "διακρίνω": "distinguish", "διαλύω": "dissolve", "διαχωρίζω": "separate", "διαμέρισμα": "flat", "διαπραγμάτευση": "negotiation", "διάφανος": "transparent", "διάρκεια": "duration", "διαδικασία": "process"}}, {"key": "ek", "label": "εκ- / εξ-", "meaning": "out", "words": {"εξήγηση": "explanation", "εξηγώ": "explain", "έξοδος": "exit", "εξαφανίζω": "vanish", "εκφράζω": "express", "έκφραση": "expression", "εκδρομή": "excursion", "εξαγωγή": "export", "εκτύπωση": "printing", "εκπέμπω": "emit", "εκλογή": "election", "εκτελώ": "execute", "εξερευνώ": "explore", "εξωτερικός": "external", "έκρηξη": "explosion", "εκρηκτικός": "explosive", "εξάγω": "export", "εκδίδω": "publish", "εξατμίζω": "evaporate", "εκθέτω": "exhibit", "εκπαίδευση": "education", "εξέλιξη": "evolution"}}, {"key": "en", "label": "εν- / εμ- / εγ-", "meaning": "in", "words": {"ενέργεια": "energy", "ενδιαφέρον": "interest", "εμπιστοσύνη": "trust", "εμπειρία": "experience", "εντύπωση": "impression", "εμφάνιση": "appearance", "ενοίκιο": "rent", "ένοχος": "guilty", "ενσωματώνω": "integrate", "εμπόδιο": "obstacle", "εμπορικός": "commercial", "ενθουσιασμός": "enthusiasm", "εγκαταλείπω": "abandon", "εγκατάσταση": "installation", "εμβόλιο": "vaccine", "ενισχύω": "strengthen", "ενημερώνω": "inform", "ενσυναίσθηση": "empathy", "εμπνέω": "inspire", "έμπνευση": "inspiration", "εγγραφή": "registration", "έμφαση": "emphasis"}}, {"key": "epi", "label": "επι-", "meaning": "on, over", "words": {"επιστρέφω": "return", "επιτυχία": "success", "επιλογή": "choice", "επίπεδο": "level", "επιχείρηση": "business", "επικοινωνία": "communication", "επιβάτης": "passenger", "επιβεβαιώνω": "confirm", "επισκέπτομαι": "visit", "επιθυμία": "desire", "επίθεση": "attack", "επιτρέπω": "allow", "επιτροπή": "committee", "επιφάνεια": "surface", "επιμένω": "insist", "επιδιώκω": "pursue", "επιρροή": "influence", "επίδραση": "effect", "επιστήμη": "science", "επιστολή": "letter", "επιθεώρηση": "inspection", "επιβιώνω": "survive", "επίδομα": "allowance"}}, {"key": "kata", "label": "κατα-", "meaning": "down, completely", "words": {"καταλαβαίνω": "understand", "καταστρέφω": "destroy", "καταφέρνω": "manage", "καταλήγω": "conclude", "κατάσταση": "situation", "καταρράκτης": "waterfall", "κατεβαίνω": "go down", "κατεβάζω": "download", "καταργώ": "abolish", "καταναλώνω": "consume", "κατανάλωση": "consumption", "καταγράφω": "record", "καταδικάζω": "condemn", "κατάστημα": "shop", "κατάλογος": "list", "καταψύκτης": "freezer", "καταστροφή": "disaster", "κατασκευάζω": "build", "κατακτώ": "conquer", "καταπίνω": "swallow", "καταθέτω": "deposit", "καταιγίδα": "storm"}}, {"key": "meta", "label": "μετα-", "meaning": "after, change", "words": {"μεταφέρω": "transfer", "μεταφορά": "transport", "μετάφραση": "translation", "μεταφράζω": "translate", "μετακομίζω": "move house", "μεταμόρφωση": "transformation", "μετανάστης": "immigrant", "μετανάστευση": "migration", "μεταβολή": "change", "μετατρέπω": "convert", "μεταδίδω": "transmit", "μετάδοση": "broadcast", "μεταπτυχιακός": "postgraduate", "μετανιώνω": "regret", "μεταχειρίζομαι": "treat", "μεταχειρισμένος": "second hand", "μετέπειτα": "subsequent", "μεταρρύθμιση": "reform", "μεταγενέστερος": "later"}}, {"key": "para", "label": "παρα-", "meaning": "beside, beyond", "words": {"παράθυρο": "window", "παράδειγμα": "example", "παράδοση": "tradition", "παραδίνω": "deliver", "παραγγέλνω": "order", "παραγγελία": "order", "παρακολουθώ": "watch", "παραλία": "beach", "παραμένω": "remain", "παράλληλος": "parallel", "παράλογος": "absurd", "παρανόηση": "misunderstanding", "παράνομος": "illegal", "παράξενος": "strange", "παραπονιέμαι": "complain", "παράπονο": "complaint", "παρατηρώ": "observe", "παραιτούμαι": "resign", "παραδέχομαι": "admit", "παραμύθι": "fairytale", "παράγραφος": "paragraph", "παραλείπω": "omit"}}, {"key": "peri", "label": "περι-", "meaning": "around, about", "words": {"περιβάλλον": "environment", "περιγράφω": "describe", "περιγραφή": "description", "περιοχή": "area", "περίοδος": "period", "περίπτωση": "case", "περιμένω": "wait", "περίπατος": "stroll", "περιπέτεια": "adventure", "περιφέρεια": "region", "περιεχόμενο": "content", "περιορίζω": "limit", "περιορισμός": "restriction", "περιουσία": "fortune", "περιοδικό": "magazine", "περίεργος": "curious", "περιττός": "unnecessary", "περίμετρος": "perimeter", "περιλαμβάνω": "include", "περικυκλώνω": "surround", "περιθώριο": "margin", "περιέργεια": "curiosity"}}, {"key": "pro", "label": "προ-", "meaning": "before, forward", "words": {"πρόγραμμα": "programme", "προγραμματίζω": "schedule", "προβλέπω": "predict", "πρόβλεψη": "forecast", "πρόοδος": "progress", "προχωρώ": "proceed", "προτείνω": "suggest", "πρόταση": "proposal", "προτιμώ": "prefer", "προτίμηση": "preference", "προετοιμάζω": "prepare", "πρόλογος": "prologue", "πρόληψη": "prevention", "προϋπόθεση": "prerequisite", "πρόεδρος": "president", "προηγούμενος": "previous", "προκαταβολή": "deposit", "προκατάληψη": "prejudice", "προάστιο": "suburb", "πρόθεση": "intention", "προϊστορία": "prehistory", "προωθώ": "promote", "πρόχειρος": "makeshift"}}, {"key": "pros", "label": "προσ-", "meaning": "towards, added", "words": {"προσθέτω": "add", "προσθήκη": "addition", "προσέχω": "careful", "προσοχή": "attention", "προσπαθώ": "try", "προσπάθεια": "effort", "προσφέρω": "offer", "προσφορά": "offer", "προσκαλώ": "invite", "πρόσκληση": "invitation", "προσευχή": "prayer", "πρόσωπο": "face", "προσωπικός": "personal", "προσαρμόζω": "adapt", "προσεγγίζω": "approach", "προσέγγιση": "approach", "προσγείωση": "landing", "προσπερνώ": "overtake", "προσβάλλω": "offend", "πρόσβαση": "access", "προσλαμβάνω": "hire", "προσωρινός": "temporary", "προσεκτικός": "careful"}}, {"key": "syn", "label": "συν- / συμ- / συλ-", "meaning": "with, together", "words": {"συνεργασία": "cooperation", "συνεργάζομαι": "cooperate", "συνάντηση": "meeting", "συναντάω": "meet", "συμφωνώ": "agree", "συμφωνία": "agreement", "συμμετέχω": "participate", "συμμετοχή": "participation", "συλλογή": "collection", "συλλαμβάνω": "arrest", "σύστημα": "system", "συζήτηση": "discussion", "συγγραφέας": "author", "συνάδελφος": "colleague", "συνεχίζω": "continue", "συναυλία": "concert", "συμπαθώ": "like", "συμπόνια": "compassion", "συνθέτης": "composer", "σύνθεση": "composition", "συνδέω": "connect", "σύνδεση": "connection", "συγκρίνω": "compare", "σύγκριση": "comparison", "συμβουλή": "advice", "σύμβολο": "symbol", "συμπεριφορά": "behaviour"}}, {"key": "hyper", "label": "υπερ-", "meaning": "over, super", "words": {"υπερβολή": "exaggeration", "υπερβολικός": "excessive", "υπέροχος": "wonderful", "υπερήφανος": "proud", "υπερηφάνεια": "pride", "υπερβαίνω": "exceed", "υπερβάλλω": "exaggerate", "υπεραγορά": "supermarket", "υπερθέρμανση": "overheating", "υπερφυσικός": "supernatural", "υπέρβαρος": "overweight", "υπερασπίζομαι": "defend", "υπεράσπιση": "defence", "υπεραστικός": "intercity", "υπερηχογράφημα": "ultrasound", "υπερπαραγωγή": "overproduction", "υπερκόπωση": "burnout", "υπερτιμώ": "overrate", "υπερηχητικός": "supersonic", "υπερδύναμη": "superpower", "υπερπληθυσμός": "overpopulation"}}, {"key": "hypo", "label": "υπο-", "meaning": "under, sub-", "words": {"υπογράφω": "sign", "υπογραφή": "signature", "υπόγειος": "underground", "υπόγειο": "basement", "υποθέτω": "assume", "υπόθεση": "affair", "υποστηρίζω": "support", "υποστήριξη": "support", "υποχρέωση": "obligation", "υποχρεωτικός": "compulsory", "υπολογίζω": "calculate", "υπολογιστής": "computer", "υπόσχομαι": "promise", "υπόσχεση": "promise", "υποψήφιος": "candidate", "υποβρύχιο": "submarine", "υπότιτλος": "subtitle", "υποτιμώ": "underestimate", "υπομονή": "patience", "υποδοχή": "reception", "υποδομή": "infrastructure", "υποκριτής": "hypocrite", "υπόλοιπο": "balance", "υποκατάστημα": "branch", "υπόδειγμα": "model"}}, {"key": "dys", "label": "δυσ-", "meaning": "bad, hard", "words": {"δύσκολος": "difficult", "δυσκολία": "difficulty", "δυστυχία": "misery", "δυστυχώς": "unfortunately", "δυσάρεστος": "unpleasant", "δυσαρεστημένος": "dissatisfied", "δυσπιστία": "distrust", "δύσπιστος": "distrustful", "δυσκολεύομαι": "struggle", "δυσλεξία": "dyslexia", "δυσφήμιση": "defamation", "δυσνόητος": "obscure", "δυσλειτουργία": "malfunction", "δυσανάλογος": "disproportionate", "δυσοσμία": "stench", "δύσβατος": "impassable", "δυσφορία": "discomfort", "δυσχέρεια": "hardship", "δυσκοιλιότητα": "constipation"}}, {"key": "eu", "label": "ευ-", "meaning": "good, well", "words": {"ευτυχία": "happiness", "ευτυχώς": "luckily", "ευτυχισμένος": "happy", "ευχαριστώ": "thanks", "ευχάριστος": "pleasant", "ευκαιρία": "chance", "εύκολος": "easy", "ευγενικός": "polite", "ευγένεια": "politeness", "ευγνωμοσύνη": "gratitude", "ευθύνη": "responsibility", "ευημερία": "prosperity", "ευφυής": "intelligent", "ευαίσθητος": "sensitive", "ευχή": "wish", "εύχομαι": "wish", "ευλογία": "blessing", "εύθυμος": "cheerful", "ευγνώμων": "grateful", "εύρωστος": "robust", "ευκολία": "ease", "ευφορία": "euphoria", "ευστάθεια": "stability"}}, {"key": "auto", "label": "αυτο-", "meaning": "self", "words": {"αυτοκίνητο": "car", "αυτόματος": "automatic", "αυτοπεποίθηση": "confidence", "αυτονομία": "autonomy", "αυτόνομος": "autonomous", "αυτοβιογραφία": "autobiography", "αυτογνωσία": "self knowledge", "αυτοσυγκέντρωση": "concentration", "αυτοάμυνα": "self defence", "αυτοαπασχολούμενος": "self employed", "αυτοσχεδιάζω": "improvise", "αυτοσχεδιασμός": "improvisation", "αυτόγραφο": "autograph", "αυτοκόλλητο": "sticker", "αυτοπροσώπως": "in person", "αυτοδιοίκηση": "self government", "αυτοέλεγχος": "self control", "αυτοθυσία": "self sacrifice", "αυτοκράτορας": "emperor", "αυτοκρατορία": "empire", "αυτοπορτρέτο": "self portrait", "αυτοματοποιώ": "automate"}}, {"key": "poly", "label": "πολυ-", "meaning": "many", "words": {"πολυκατοικία": "apartment block", "πολυάσχολος": "busy", "πολυτέλεια": "luxury", "πολυτελής": "luxurious", "πολυπολιτισμικός": "multicultural", "πολύχρωμος": "colourful", "πολύγλωσσος": "multilingual", "πολυμήχανος": "resourceful", "πολυάριθμος": "numerous", "πολύπλοκος": "complex", "πολυκατάστημα": "department store", "πολυεθνικός": "multinational", "πολυθρόνα": "armchair", "πολυμέσα": "multimedia", "πολύτιμος": "precious", "πολυσύχναστος": "crowded", "πολύωρος": "lengthy", "πολυάνθρωπος": "populous", "πολυλογάς": "chatterbox"}}, {"key": "xana", "label": "ξανα-", "meaning": "again", "words": {"ξαναβλέπω": "see again", "ξαναγράφω": "rewrite", "ξαναρχίζω": "restart", "ξαναγυρίζω": "come back", "ξαναβρίσκω": "find again", "ξαναλέω": "repeat", "ξανασκέφτομαι": "reconsider", "ξαναφτιάχνω": "remake", "ξαναζώ": "relive", "ξαναπαίζω": "replay", "ξανακάνω": "redo", "ξαναχτίζω": "rebuild", "ξαναδιαβάζω": "reread", "ξαναπαντρεύομαι": "remarry", "ξαναμπαίνω": "go back in", "ξαναπροσπαθώ": "try again", "ξαναβάφω": "repaint", "ξαναζεσταίνω": "reheat"}}];
+for(const P of PREFIX_EL){ for(const [k,v] of Object.entries(P.words)) if(!(k in GLOSS_EL)) GLOSS_EL[k]=v; CATS['p_'+P.key] = {name:`Prefix ${P.label} (${P.meaning})`, short:`${P.label}  ·  ${P.meaning}`, words:P.words, prefix:true}; }
+for(let i=0;i<20;i++){ const a=i*100+1, b=(i+1)*100; CATS['f_'+(i+1)] = {name:`Most common ${a}–${b}`, short:`${a}–${b}`, words:Object.fromEntries(FREQ_EL.slice(i*100,(i+1)*100)), freq:true}; }
+const GREEK_LETTERS = 'αβγδεζηθικλμνξοπρστυφχψω';
+const firstLetter = w => w.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')[0];
+const BY_LETTER = {};
+for(const w of Object.keys(GLOSS_EL)){ const l=firstLetter(w); (BY_LETTER[l] ||= {})[w]=GLOSS_EL[w]; }
+delete CATS.alpha;
+for(const l of GREEK_LETTERS) CATS[l==='α'?'alpha':'l_'+l] = {name:'Words starting with '+l.toUpperCase(), short:l.toUpperCase(), words:BY_LETTER[l]||{}, letter:true};
+function levelName(h){ const lv=h.level||'beginner'; return lv==='category' ? (CATS[h.cat]?.name||'Category') : LEVELS[lv]; }
+function poolFor(c, v, lv){
+  if(lv==='category' && c==='el') return Object.keys(CATS[cat].words);
+  const beg = c==='el' ? EL_BEG : PT_BEG.filter(w=> v==='br' ? !PT_ONLY.includes(w) : !BR_ONLY.includes(w));
+  const mid = Object.keys(c==='el' ? EL_INT : PT_INT), adv = Object.keys(c==='el' ? EL_ADV : PT_ADV);
+  return lv==='intermediate' ? mid : lv==='advanced' ? adv : lv==='all' ? [...new Set([...beg,...mid,...adv])] : beg;
+}
+const strip = s => s.normalize('NFD').replace(/[̀-ͯ]/g,'').normalize('NFC');
+const $ = id => document.getElementById(id);
+const KEY = 'greek-typing.v1';
+
+let store = {hist:{el:[],pt:[]}, settings:{dur:30, accents:true, map:true, lang:'el'}};
+try{ const s = JSON.parse(localStorage.getItem(KEY)); if(s){ if(s.hist) store.hist=Object.assign(store.hist,s.hist); else if(Array.isArray(s.history)) store.hist.el=s.history; Object.assign(store.settings, s.settings||{}); } }catch(e){}
+let cl = LANGS[store.settings.lang] ? store.settings.lang : 'el';
+let ptv = store.settings.ptv==='br' ? 'br' : 'pt';
+let level = (LEVELS[store.settings.level] || store.settings.level==='category') ? store.settings.level : 'beginner';
+let cat = CATS[store.settings.cat] ? store.settings.cat : 'alpha';
+let WORDS = LANGS[cl].words, GLOSS = LANGS[cl].gloss;
+function hist(){ return store.hist[cl] || (store.hist[cl]=[]); }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){} }
+
+let dur = [0,30,60].includes(store.settings.dur) ? store.settings.dur : 30, accents = store.settings.accents, mapKeys = true; // key conversion is always on; it adapts to whatever layout the computer uses
+let voiceMode = (store.settings.voice==='start'||store.settings.voice==='on') ? 'on' : 'off';
+const TTS = 'speechSynthesis' in window ? window.speechSynthesis : null;
+let tVoices = [], enVoice = null;
+function loadVoices(){
+  if(!TTS) return;
+  const all = TTS.getVoices();
+  tVoices = all.filter(v=>v.lang.toLowerCase().startsWith(LANGS[cl].vp));
+  enVoice = all.find(v=>/^en[-_]GB/i.test(v.lang)) || all.find(v=>/^en/i.test(v.lang)) || null;
+  tVoices.sort((a,b)=>score(b)-score(a));
+  $('voiceNote').textContent = tVoices.length ? '' : `no ${LANGS[cl].name} voice on this device`;
+}
+function score(v){ return (v.lang.replace('_','-').toLowerCase()===LANGS[cl].tts.toLowerCase()?4:0) + (/melina|google|microsoft|natural|enhanced|premium/i.test(v.name)?2:0) + (v.localService?1:0); }
+function say(i){
+  if(!TTS || voiceMode==='off' || i<0 || i>=words.length) return;
+  if(lang[i]==='t' && !orig[i]) return; // later word of a Greek phrase: the phrase was read with its first word
+  const isEn = lang[i]==='en';
+  // a multi-word translation is spoken once, as a whole, when its first word comes up
+  if(isEn && i>0 && lang[i-1]==='en' && grp[i-1]===grp[i]) return;
+  const text = isEn ? words.filter((_,j)=>lang[j]==='en' && grp[j]===grp[i]).join(' ') : orig[i];
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = isEn ? 'en-GB' : LANGS[cl].tts;
+  const v = isEn ? enVoice : tVoices[0];
+  if(v) u.voice = v;
+  u.rate = 1.05;
+  TTS.cancel(); TTS.speak(u);
+}
+let trans = store.settings.trans || (store.settings.gloss===false ? 'off' : 'under');
+let orig = [], lang = [], gloss = trans==='under';
+let shown=[], grp=[];
+function tr(w){ const c = level==='category' && cl==='el' && CATS[cat]; return (c && (c.topic||c.freq) && c.words[w]) || GLOSS[w] || ''; }
+// typed translation: drop notes in brackets and keep the first meaning before a slash
+function trType(w){ const alts=tr(w).replace(/\([^)]*\)/g,' ').split(/[\/,]/).map(a=>a.replace(/[?!]/g,'').replace(/\s+/g,' ').trim()).filter(Boolean); return (alts.find(a=>!a.endsWith('-'))||alts[0]||''); }
+function addWords(list){ const from=words.length; list.forEach(m=>{ const g=words.length; m.split(' ').filter(Boolean).forEach((part,pi)=>{ orig.push(pi===0?m:null); words.push(accents?part:strip(part)); shown.push(part); lang.push('t'); grp.push(g); }); if(trans==='after'||trans==='hidden'){ for(const part of trType(m).split(' ').filter(Boolean)){ orig.push(null); words.push(part); shown.push(part); lang.push('en'); grp.push(g); } } }); return from; }
+let dead = null, kbState='unknown', lockUntil = 0, lockTimer;
+let words, typed, cur, inputPrev, started, startT, finished, tick;
+let keysCorrect, keysErr, keysTotal, secKeys, secErr, samples, lastSec;
+const input = $('hidden'), wordsEl = $('words'), caret = $('caret'), field = $('field');
+
+function pick(n){ const out=[]; let prev=''; while(out.length<n){ const w=WORDS[Math.random()*WORDS.length|0]; if(w!==prev){out.push(w); prev=w;} } return out; }
+
+function reset(){
+  autosave();
+  clearInterval(tick);
+  orig=[]; words=[]; shown=[]; lang=[]; grp=[]; addWords(pick(trans==='after'||trans==='hidden'?80:140)); typed = []; cur = 0; inputPrev = ''; started=false; finished=false;
+  keysCorrect=0; keysErr=0; keysTotal=0; secKeys=0; secErr=0; samples=[]; lastSec=0;
+  input.value=''; dead=null; caret.classList.remove('dead');
+  wordsEl.innerHTML=''; wordsEl.style.transform='translateY(0)';
+  words.forEach((w,i)=>wordsEl.appendChild(makeWord(i)));
+  renderWord(0); fitAll();
+  paused=false; $('timer').classList.remove('dim'); $('pauseNote').hidden=true;
+  $('timer').textContent = dur===0 ? '0:00' : dur; $('liveWpm').textContent=''; $('endHint').hidden = dur!==0;
+  $('testView').hidden=false; $('testView').style.display='flex'; $('resultView').hidden=true;
+  caret.classList.add('idle');
+  document.querySelectorAll('[data-d]').forEach(b=>b.setAttribute('aria-pressed', String(+b.dataset.d===dur)));
+  $('acc').checked = accents;
+  requestAnimationFrame(()=>{ placeCaret(); focusInput(); });
+}
+
+function unmaskUpTo(n){ for(let i=0;i<wordsEl.children.length;i++){ if(i>n && (lang[n]!=='en' || grp[i]!==grp[n])) break; wordsEl.children[i].classList.remove('masked'); } }
+function makeWord(i){
+  const el=document.createElement('span'); el.className='word'+(lang[i]==='en'?' en':'')+(lang[i]==='en'&&trans==='hidden'&&i>cur?' masked':'');
+  const wt=document.createElement('span'); wt.className='wt';
+  for(const ch of shown[i]){ const l=document.createElement('span'); l.className='l'; l.textContent=ch; wt.appendChild(l); }
+  const g=document.createElement('span'); g.className='g'; g.textContent=lang[i]==='t'?tr(orig[i]):'';
+  el.append(wt,g);
+  return el;
+}
+function fitGloss(el){
+  if(!gloss) return;
+  const g=el.lastChild; g.style.fontSize='';
+  const avail=g.clientWidth, need=g.scrollWidth;
+  if(need>avail+1){ const base=parseFloat(getComputedStyle(g).fontSize); g.style.fontSize=Math.max(7, base*avail/need)+'px'; }
+}
+function fitAll(){ for(const el of wordsEl.children) fitGloss(el); }
+
+function renderWord(i){
+  const el = wordsEl.children[i]; if(!el) return;
+  const target=[...words[i]], disp=[...shown[i]], t=[...(i===cur ? inputPrev : (typed[i]??''))];
+  const wt=el.firstChild, before=wt.children.length;
+  wt.innerHTML='';
+  target.forEach((ch,j)=>{ const l=document.createElement('span'); l.className='l'+(j<t.length?(t[j]===ch?' ok':' bad'):(i<cur?' miss':'')); l.textContent=disp[j]??ch; wt.appendChild(l); });
+  t.slice(target.length).forEach(ch=>{ const l=document.createElement('span'); l.className='l x'; l.textContent=ch; wt.appendChild(l); });
+  el.classList.toggle('cur', i===cur);
+  if(wt.children.length!==before) fitGloss(el);
+  el.classList.toggle('done', i<cur);
+  el.classList.toggle('err', i<cur && typed[i]!==words[i]);
+}
+
+function placeCaret(){
+  const el = wordsEl.children[cur]; if(!el) return;
+  const n=[...inputPrev].length, wt=el.firstChild, letters=wt.children, fr=field.getBoundingClientRect();
+  let r, x;
+  if(n<letters.length){ r=letters[n].getBoundingClientRect(); x=r.left; }
+  else { r=(letters[letters.length-1]||el).getBoundingClientRect(); x=r.right; }
+  // scroll so current word sits on line 2 at most
+  const lineH = el.offsetHeight;
+  const top = el.offsetTop;
+  const shift = Math.max(0, top - lineH);
+  wordsEl.style.transform = `translateY(${-shift}px)`;
+  caret.style.left = (x - fr.left)+'px';
+  caret.style.top = (top - shift + (wt.offsetHeight - caret.offsetHeight)/2)+'px';
+  updateKbd();
+}
+
+function norm(v){ v=v.normalize('NFC'); return accents? v : strip(v); }
+
+function onInput(){
+  if(finished) return;
+  // safety net: any letter that slipped past the key conversion gets converted here
+  if(cl==='el' && mapKeys){
+    const raw=input.value, toEn=lang[cur]==='en';
+    const fixed = toEn
+      ? raw.replace(/[\u0370-\u03FF]/g, c=>{ const l=G2L[strip(c).toLowerCase()]; return l ? (c===c.toLowerCase()?l:l.toUpperCase()) : c; })
+      : raw.replace(/[a-zA-Z]/g, c=>{ const g=L2G[c.toLowerCase()]; return g ? (c===c.toLowerCase()?g:g.toUpperCase()) : c; });
+    if(fixed!==raw){ input.value=fixed; setKb('mapped'); }
+  }
+  let v = norm(input.value);
+  const last=[...v].pop();
+  if(cl!=='el' || lang[cur]==='en'){} else if(!mapKeys && last && isLatin(last)) setKb('latin'); else if(last && isGreek(last) && kbState!=='mapped') setKb('greek');
+  if(!started && v.trim()==='') { input.value=''; return; }
+  lastKeyT=performance.now();
+  if(paused) resume();
+  if(!started){ started=true; startT=performance.now(); sessDur=dur; sessLang=cl; sid=Date.now()+'-'+Math.random().toString(36).slice(2,7); sessStart=Date.now(); lastSaveT=performance.now(); caret.classList.remove('idle'); tick=setInterval(onTick,100); if(voiceMode==='on') say(cur); }
+  const sp = v.indexOf(' ');
+  if(sp!==-1){
+    const w = v.slice(0,sp);
+    if(w===''){ input.value=inputPrev; return; }
+    countKeys(inputPrev, w);
+    keysTotal++; secKeys++;
+    if(w===words[cur]) keysCorrect++; else { keysErr++; secErr++; }
+    if(lang[cur]==='t' && orig[cur]) bump(orig[cur], w===words[cur]);
+    typed[cur]=w; inputPrev=''; input.value=''; dead=null; caret.classList.remove('dead');
+    cur++; renderWord(cur-1); unmaskUpTo(cur);
+    if(voiceMode==='on') say(cur);
+    if(cur > words.length-40){ const from=addWords(pick(40)); for(let i=from;i<words.length;i++){ wordsEl.appendChild(makeWord(i)); fitGloss(wordsEl.lastChild); } }
+    renderWord(cur); placeCaret(); return;
+  }
+  countKeys(inputPrev, v);
+  inputPrev = v; renderWord(cur); placeCaret();
+}
+
+function countKeys(prev, next){
+  const p=[...prev], n=[...next], t=[...words[cur]];
+  if(n.length<=p.length) return;
+  for(let k=p.length;k<n.length;k++){
+    keysTotal++; secKeys++;
+    if(k<t.length && n[k]===t[k]) keysCorrect++; else { keysErr++; secErr++; }
+  }
+}
+
+function correctChars(){
+  let c=0;
+  for(let i=0;i<cur;i++){
+    const t=[...words[i]], y=[...(typed[i]||'')];
+    if(typed[i]===words[i]) c+=t.length+1;
+    else t.forEach((ch,j)=>{ if(y[j]===ch) c++; });
+  }
+  const t=[...words[cur]], y=[...inputPrev];
+  y.forEach((ch,j)=>{ if(t[j]===ch) c++; });
+  return c;
+}
+
+
+// ---- lifetime word counts: [times typed, times typed correctly] per word, kept in this browser and in your account
+const KEY_C = 'greek-typing.counts.v1';
+let COUNTS = {el:{}, pt:{}};
+try{ const s=JSON.parse(localStorage.getItem(KEY_C)); if(s) for(const l in s) COUNTS[l]=s[l]||{}; }catch(e){}
+let wcRef=null, wcDirty={}, wcLocalT=0, wcRemoteT=0, wcBusy=false;
+function counts(l=cl){ return COUNTS[l] || (COUNTS[l]={}); }
+function bump(w, ok){
+  const e = counts()[w] || (counts()[w]=[0,0]);
+  e[0]++; if(ok) e[1]++;
+  wcDirty[cl]=true;
+  clearTimeout(wcLocalT); wcLocalT=setTimeout(saveCountsLocal, 800);
+  clearTimeout(wcRemoteT); wcRemoteT=setTimeout(pushCounts, 6000);
+}
+function saveCountsLocal(){ try{ localStorage.setItem(KEY_C, JSON.stringify(COUNTS)); }catch(e){} }
+function flushCounts(){ clearTimeout(wcLocalT); saveCountsLocal(); clearTimeout(wcRemoteT); pushCounts(); if(!$('wcPanel').hidden) renderCounts(); }
+async function pushCounts(){
+  if(!wcRef || wcBusy) return;
+  const langs=Object.keys(wcDirty).filter(l=>wcDirty[l]); if(!langs.length) return;
+  wcBusy=true;
+  try{ for(const l of langs){ wcDirty[l]=false; await wcRef.doc('wc_'+l).set({json:JSON.stringify(counts(l)), t:Date.now()}); } setWcNote('Saved to your account'); }
+  catch(e){ langs.forEach(l=>wcDirty[l]=true); setWcNote('Saved in this browser · account sync failed'); }
+  wcBusy=false;
+}
+function setWcNote(t){ $('wcNote').textContent=t; }
+async function initCountSync(){
+  if(!window.claude || !window.claude.use) return;
+  const [db, user] = await Promise.all([claude.use('db'), claude.use('user')]);
+  const id = user ? await user.id() : null;
+  if(!db || !id){ setWcNote('Saved in this browser'); return; }
+  wcRef = db.collection('data/users/'+id);
+  try{
+    for(const l of ['el','pt']){
+      const snap = await wcRef.doc('wc_'+l).get();
+      let remote = {}; try{ remote = snap.exists ? JSON.parse(snap.data().json||'{}') : {}; }catch(e){}
+      const loc = counts(l); let differs=false;
+      for(const [w,[a,b]] of Object.entries(remote)){ const e=loc[w]||(loc[w]=[0,0]); if(a>e[0]){e[0]=a;} if(b>e[1]){e[1]=b;} }
+      for(const [w,e] of Object.entries(loc)){ const r=remote[w]; if(!r || r[0]!==e[0] || r[1]!==e[1]) differs=true; }
+      if(differs) wcDirty[l]=true;
+    }
+    saveCountsLocal(); setWcNote('Saved to your account'); renderCounts(); pushCounts();
+  }catch(e){ wcRef=null; setWcNote('Saved in this browser · account sync unavailable'); }
+}
+let wcScope = store.settings.wcScope==='all' ? 'all' : 'set', wcSort = store.settings.wcSort==='least' ? 'least' : 'most';
+const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function renderCounts(){
+  const C=counts(), pool=[...new Set(WORDS)];
+  const all=Object.entries(C), total=all.reduce((a,[,e])=>a+e[0],0);
+  const seen=pool.filter(w=>C[w]&&C[w][0]>0).length;
+  $('wcTotal').textContent=total.toLocaleString();
+  $('wcDistinct').textContent=all.filter(([,e])=>e[0]>0).length.toLocaleString();
+  $('wcSet').textContent=`${seen} of ${pool.length}`;
+  $('wcSetLab').textContent='typed in ' + (cl==='el' && level==='category' ? (CATS[cat]?.short||'this set') : 'current words');
+  document.querySelectorAll('[data-wcs]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.wcs===wcScope)));
+  document.querySelectorAll('[data-wco]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.wco===wcSort)));
+  const q=strip($('wcSearch').value.trim().toLowerCase());
+  let list = wcScope==='set' ? pool : all.map(([w])=>w);
+  if(q) list=list.filter(w=>strip(w.toLowerCase()).includes(q) || (GLOSS[w]||'').toLowerCase().includes(q));
+  const n=w=>C[w]?C[w][0]:0;
+  list.sort((a,b)=> wcSort==='most' ? n(b)-n(a)||a.localeCompare(b,'el') : n(a)-n(b)||a.localeCompare(b,'el'));
+  const shown=list.slice(0,60);
+  $('wcBody').innerHTML = shown.map(w=>{ const e=C[w]||[0,0]; const acc=e[0]?Math.round(e[1]/e[0]*100)+'%':'–';
+    return `<tr><td class="wcw">${esc(w)}</td><td class="wcg">${esc(tr(w))}</td><td class="n">${e[0]}</td><td class="n">${e[1]}</td><td class="n">${acc}</td></tr>`; }).join('');
+  $('wcMore').textContent = list.length>shown.length ? `Showing ${shown.length} of ${list.length.toLocaleString()} · search to find a word` : (list.length ? '' : (q ? 'No word matches that search.' : 'Finish a word and its count shows up here.'));
+}
+
+let paused=false, pausedAt=0, lastKeyT=0;
+function pause(){
+  paused=true; pausedAt=Math.max(0,(lastKeyT-startT)/1000);
+  const keep=Math.floor(pausedAt); samples=samples.filter(x=>x.s<=keep); lastSec=keep; secKeys=0; secErr=0;
+  $('timer').textContent=fmt(pausedAt); $('timer').classList.add('dim'); $('pauseNote').hidden=false;
+  autosave();
+}
+function resume(){ paused=false; startT=performance.now()-pausedAt*1000; $('timer').classList.remove('dim'); $('pauseNote').hidden=true; }
+let sessLang='el', sessDur=30, sid='', sessStart=0, lastSaveT=0;
+const lenName = h => h.dur===0 ? '∞ '+fmt(h.secs||0) : h.dur===30 ? '30s' : '1 min';
+const fmt = sec => `${Math.floor(sec/60)}:${String(Math.floor(sec%60)).padStart(2,'0')}`;
+function onTick(){
+  if(paused) return;
+  if(dur===0 && performance.now()-lastKeyT>5000){ pause(); return; }
+  const el=(performance.now()-startT)/1000;
+  if(dur===0) $('timer').textContent=fmt(el);
+  else $('timer').textContent=Math.max(0, Math.ceil(dur-el));
+  while(lastSec < (dur===0 ? Math.floor(el) : Math.min(Math.floor(el), dur))){
+    lastSec++;
+    const wpm = correctChars()/5/(lastSec/60);
+    samples.push({s:lastSec, wpm, raw:secKeys/5*60, err:secErr, cc:correctChars()});
+    secKeys=0; secErr=0;
+    $('liveWpm').textContent = Math.round(wpm)+' wpm';
+  }
+  if(sessDur===0 && performance.now()-lastSaveT>=10000) autosave();
+  if(dur>0 && el>=dur) finish();
+}
+
+function buildRecord(){
+  // tally character outcomes
+  let ok=0,bad=0,extra=0,missed=0;
+  for(let i=0;i<=cur;i++){
+    const t=[...words[i]], y=[...(i===cur?inputPrev:typed[i]||'')];
+    if(i===cur && y.length===0) break;
+    t.forEach((ch,j)=>{ if(j<y.length){ y[j]===ch?ok++:bad++; } else if(i<cur) missed++; });
+    if(y.length>t.length) extra+=y.length-t.length;
+  }
+  const endless = sessDur===0, secs = endless ? Math.max(1, paused ? pausedAt : (performance.now()-startT)/1000) : sessDur;
+  const cc=correctChars(), mins=secs/60;
+  const wpm=cc/5/mins, raw=keysTotal/5/mins;
+  const acc= keysTotal? keysCorrect/keysTotal*100 : 0;
+  const raws=samples.map(s=>s.raw), mean=raws.reduce((a,b)=>a+b,0)/(raws.length||1);
+  const sd=Math.sqrt(raws.reduce((a,b)=>a+(b-mean)**2,0)/(raws.length||1));
+  const cons= mean? Math.max(0,100*(1-sd/mean)) : 0;
+  const correctWords = typed.filter((w,i)=>w===words[i]).length;
+
+  const rec={t:endless?sessStart:Date.now(), sid, secs:endless?Math.round(secs):undefined, dur:sessDur, accents, trans, level, cat: level==='category'?cat:undefined, ptv: cl==='pt'?ptv:undefined, wpm:+wpm.toFixed(1), raw:+raw.toFixed(1), acc:+acc.toFixed(1), cons:+cons.toFixed(0), ok,bad,extra,missed, words:correctWords, typedWords:cur, samples:thin(samples).map(s=>[s.wpm|0,s.raw|0,s.err])};
+  return {rec, endless, secs, wpm, raw, acc, cons, ok, bad, extra, missed, correctWords};
+}
+function thin(a){ if(a.length<=600) return a; const k=Math.ceil(a.length/600); return a.filter((_,i)=>i%k===0); }
+function upsertSession(rec){ const L=sessLang, hh=store.hist[L]||(store.hist[L]=[]); const i=hh.findIndex(h=>h.sid && h.sid===rec.sid); if(i>=0) hh[i]=rec; else { hh.push(rec); if(hh.length>500) hh.shift(); } save(); syncRun(L, rec); }
+
+/* ---------- Sync across devices ----------
+   Each signed-in person's results live in their own private part of this app's database:
+   one document per language and month (data/users/<id>/typing-<lang>-<yyyymm>) holding {runs:{key:run}},
+   plus typing-meta with the time each language's history was last cleared.
+   On load, local and stored results are joined (a union), so nothing recorded on any device is lost. */
+const SYNC = {db:null, base:'', docs:new Set(), q:Promise.resolve(), cleared:{}, state:'local'};
+const runKey = r => r.sid || ('t'+r.t+'-'+r.dur);
+const slim = r => { const o={...r}; delete o.samples; return o; };
+const monthOf = t => { const d=new Date(t); return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0'); };
+const better = (a,b) => (a.secs||0) > (b.secs||0);
+function setSyncNote(st){ SYNC.state=st; const el=$('syncNote'); if(el) el.textContent = st==='synced' ? 'synced across your devices' : st==='syncing' ? 'syncing…' : st==='offline' ? 'saved on this device; sync unreachable right now' : 'saved in this browser'; }
+// one write at a time, in order; a failed write is retried once, then left for the next load to repair
+function enqueue(fn){ SYNC.q = SYNC.q.then(()=>fn().catch(e=>{ if(e && e.code==='unavailable') return new Promise(res=>setTimeout(res,800+Math.random()*800)).then(fn).catch(()=>{}); })); return SYNC.q; }
+function writeRuns(docId, runs){
+  return enqueue(async ()=>{
+    const ref=SYNC.db.doc(SYNC.base+'/'+docId);
+    if(SYNC.docs.has(docId)){ await ref.update({runs}); }
+    else { try{ await ref.update({runs}); }catch(e){ if(e && e.code!=='invalid_argument') throw e; await ref.set({runs}); } SYNC.docs.add(docId); }
+  });
+}
+function syncRun(L, rec){ if(!SYNC.db) return; writeRuns(`typing-${L}-${monthOf(rec.t)}`, {[runKey(rec)]: slim(rec)}); }
+// fold stored results into the local history; returns the local runs the store is missing
+function mergeRemote(remote, cleared){
+  const missing={};
+  for(const L of ['el','pt']){
+    const ca=cleared[L]||0, map=new Map();
+    for(const r of (store.hist[L]||[])) if((r.t||0)>ca) map.set(runKey(r), r);
+    for(const [k,r] of Object.entries(remote[L]||{})){ if((r.t||0)<=ca) continue; const cur=map.get(k); if(!cur) map.set(k,r); else if(better(r,cur)) map.set(k,{...r, samples:cur.samples}); }
+    const list=[...map.values()].sort((a,b)=>a.t-b.t).slice(-500);
+    store.hist[L]=list;
+    missing[L]=list.filter(r=>{ const rr=(remote[L]||{})[runKey(r)]; return !rr || better(r,rr); });
+  }
+  return missing;
+}
+function readSnapshot(docs){
+  const remote={el:{},pt:{}}; let cleared={};
+  for(const d of docs){ const x=d.data()||{}; SYNC.docs.add(d.id);
+    if(d.id==='typing-meta') cleared=x.clearedAt||{};
+    else { const m=d.id.match(/^typing-(el|pt)-\d{6}$/); if(m) Object.assign(remote[m[1]], x.runs||{}); } }
+  return {remote, cleared};
+}
+async function startSync(){
+  try{
+    if(!window.claude || !window.claude.use) return;
+    const [db,user]=await Promise.all([window.claude.use('db'), window.claude.use('user')]);
+    if(!db || !user) return;
+    const uid=await user.id(); if(!uid) return;
+    SYNC.db=db; SYNC.base='data/users/'+uid; setSyncNote('syncing');
+    const slow=setTimeout(()=>{ if(SYNC.state==='syncing') setSyncNote('offline'); }, 10000);
+    const snap=await db.collection(SYNC.base).get();
+    clearTimeout(slow);
+    const {remote, cleared}=readSnapshot(snap.docs); SYNC.cleared=cleared;
+    const missing=mergeRemote(remote, cleared); save(); renderStats();
+    for(const L of ['el','pt']){ const byMonth={}; for(const r of missing[L]) (byMonth[monthOf(r.t)] ||= {})[runKey(r)]=slim(r); for(const [m,runs] of Object.entries(byMonth)) writeRuns(`typing-${L}-${m}`, runs); }
+    await SYNC.q; setSyncNote('synced');
+    // live: results finished on another device show up here while this page is open
+    db.collection(SYNC.base).onSnapshot(s=>{ if(s.metadata.hasPendingWrites) return; const {remote, cleared}=readSnapshot(s.docs); SYNC.cleared=cleared; mergeRemote(remote, cleared); save(); renderStats(); setSyncNote('synced'); }, ()=>{});
+  }catch(e){ if(SYNC.db) setSyncNote('offline'); }
+}
+function syncClear(L){
+  if(!SYNC.db) return;
+  const now=Date.now(); SYNC.cleared[L]=now;
+  enqueue(async ()=>{ const ref=SYNC.db.doc(SYNC.base+'/typing-meta'); const body={clearedAt:{[L]:now}}; try{ await ref.update(body); }catch(e){ if(e && e.code!=='invalid_argument') throw e; await ref.set(body); } });
+  for(const id of [...SYNC.docs]) if(id.startsWith(`typing-${L}-`)){ SYNC.docs.delete(id); enqueue(()=>SYNC.db.doc(SYNC.base+'/'+id).delete()); }
+}
+// endless sessions are saved every 10 s, on pause and when the page is hidden, so walking away keeps the result
+function autosave(){ if(sessDur!==0 || !started || finished || keysTotal===0) return; upsertSession(buildRecord().rec); lastSaveT=performance.now(); }
+document.addEventListener('visibilitychange',()=>{ if(document.hidden){ autosave(); flushCounts(); } });
+window.addEventListener('pagehide', ()=>{ autosave(); flushCounts(); });
+function finish(){
+  flushCounts();
+  finished=true; clearInterval(tick); input.blur();
+  const {rec, endless, secs, wpm, raw, acc, cons, ok, bad, extra, missed, correctWords} = buildRecord();
+  const prevBest = endless ? null : bestFor(sessDur, accents);
+  const isPb = !endless && keysTotal>0 && (!prevBest || rec.wpm>prevBest.wpm);
+  if(keysTotal>0) upsertSession(rec);
+
+  $('rWpm').textContent=Math.round(wpm);
+  $('rAcc').textContent=Math.round(acc)+'%';
+  $('rRaw').textContent=Math.round(raw);
+  $('rPb').hidden=!isPb;
+  $('rMode').textContent = endless ? `Endless · ${fmt(secs)} · saved` : `${dur===30?'30s':'1 min'} · ${accents?'with accents':'no accents'}`;
+  $('rChars').textContent=`${ok}/${bad}/${extra}/${missed}`;
+  $('rCons').textContent=Math.round(cons)+'%';
+  $('rWords').textContent=`${correctWords} correct of ${cur}`;
+  $('rErr').textContent=`${keysErr} / ${keysTotal}`;
+  $('testView').style.display='none'; $('resultView').hidden=false;
+  drawRun(samples); renderStats();
+  // hold the results on screen: ignore keys briefly so trailing keystrokes can't skip them
+  lockUntil = performance.now() + 1500;
+  const nb=$('next'); nb.disabled=true; nb.textContent='Results locked…';
+  clearTimeout(lockTimer);
+  lockTimer=setTimeout(()=>{ nb.disabled=false; nb.textContent='Next test (Enter)'; }, 1500);
+}
+
+const tKey = t => (t==='after'||t==='hidden') ? t : 'plain';
+function bestFor(d,a){ let b=null; hist().forEach(h=>{ if(h.dur===d && h.accents===a && tKey(h.trans)===tKey(trans) && (h.level||'beginner')===level && (level!=='category' || h.cat===cat) && (!b||h.wpm>b.wpm)) b=h; }); return b; }
+
+function tok(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+let runChart, histChart, lastRun=[];
+function baseOpts(){
+  const g=tok('--faint'), m=tok('--muted');
+  return {responsive:true, maintainAspectRatio:false, animation:false, interaction:{mode:'index',intersect:false},
+    plugins:{legend:{labels:{color:m, font:{family:'IBM Plex Mono',size:11}, boxWidth:12}}, tooltip:{titleFont:{family:'IBM Plex Mono'},bodyFont:{family:'IBM Plex Mono'}}},
+    scales:{x:{grid:{color:g},ticks:{color:m,font:{family:'IBM Plex Mono',size:10}}}, y:{beginAtZero:true,grid:{color:g},ticks:{color:m,font:{family:'IBM Plex Mono',size:10}},title:{display:true,text:'wpm',color:m}}}};
+}
+function drawRun(s){
+  lastRun=s; if(!window.Chart) return;
+  runChart && runChart.destroy();
+  const o=baseOpts();
+  o.scales.y2={position:'right',beginAtZero:true,grid:{display:false},ticks:{color:tok('--bad'),precision:0,font:{family:'IBM Plex Mono',size:10}},title:{display:true,text:'errors',color:tok('--bad')}};
+  o.scales.x.title={display:true,text:'seconds',color:tok('--muted')};
+  runChart=new Chart($('runChart'),{data:{labels:s.map(x=>x.s),datasets:[
+    {type:'line',label:'wpm',data:s.map(x=>Math.round(x.wpm)),borderColor:tok('--accent'),backgroundColor:tok('--accent')+'22',fill:true,tension:.3,pointRadius:0,borderWidth:2.5},
+    ...(s.length>60 && s[0].cc!==undefined ? [{type:'line',label:'last 1 min',data:s.map((x,i)=>i>=60?Math.max(0,Math.round((x.cc-s[i-60].cc)/5)):null),borderColor:tok('--accent-2'),tension:.3,pointRadius:0,borderWidth:2}] : []),
+    {type:'line',label:'raw',data:s.map(x=>Math.round(x.raw)),borderColor:tok('--muted'),borderDash:[4,4],tension:.3,pointRadius:0,borderWidth:1.5},
+    {type:'scatter',label:'errors',yAxisID:'y2',data:s.map(x=>x.err||null),borderColor:tok('--bad'),backgroundColor:tok('--bad'),pointStyle:'crossRot',pointRadius:5,borderWidth:2}
+  ]},options:o});
+}
+const FILTERS = [
+  {key:'dur', label:'Length', get:h=>String(h.dur), opts:[['30','30s'],['60','1 min'],['0','∞']]},
+  {key:'acc', label:'Accents', get:h=>h.accents?'on':'off', opts:[['on','required'],['off','optional']]},
+  {key:'level', label:'Words', get:h=>(h.level==='category'?'cat:'+h.cat:(h.level||'beginner')), opts:[...Object.entries(LEVELS), ...Object.entries(CATS).map(([k,c])=>['cat:'+k,c.name])]},
+  {key:'trans', label:'Translations', get:h=>h.trans||'under', opts:[['off','Off'],['under','Under'],['after','After'],['hidden','After hidden']]},
+  {key:'ptv', label:'Variant', get:h=>h.ptv||'pt', opts:[['pt','PT'],['br','BR']], only:'pt'}
+];
+let hidden = store.settings.hfilter || {};
+function passes(h){ return FILTERS.every(f=>!(f.only && f.only!==cl) && (hidden[f.key]||[]).includes(f.get(h)) ? false : true); }
+function renderFilters(){
+  const H=hist(), any=FILTERS.some(f=>(hidden[f.key]||[]).length);
+  $('filters').innerHTML = FILTERS.filter(f=>!f.only||f.only===cl).map(f=>{
+    const present=new Set(H.map(f.get)), opts=f.opts.filter(([v])=>present.has(v)||(hidden[f.key]||[]).includes(v));
+    if(opts.length<2) return '';
+    return `<div class="fgroup"><span class="lab">${f.label}</span>${opts.map(([v,t])=>`<button class="fchip" data-fk="${f.key}" data-fv="${v}" aria-pressed="${!(hidden[f.key]||[]).includes(v)}">${t}</button>`).join('')}</div>`;
+  }).join('') + (any?'<button class="freset" id="freset">Show all</button>':'');
+}
+$('filters').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  if(b.id==='freset'){ hidden={}; }
+  else { const k=b.dataset.fk, v=b.dataset.fv, arr=hidden[k]||(hidden[k]=[]); const i=arr.indexOf(v); i>=0?arr.splice(i,1):arr.push(v); }
+  store.settings.hfilter=hidden; save(); renderStats();
+});
+function renderStats(){
+  const cells=[[30,true],[30,false],[60,true],[60,false]];
+  $('bests').innerHTML=cells.map(([d,a])=>{
+    const b=bestFor(d,a), n=hist().filter(h=>h.dur===d&&h.accents===a).length;
+    return `<div><span class="lab">${d===30?'30s':'1 min'} · ${a?'accents':'no accents'}</span><span class="v">${b?Math.round(b.wpm):'—'}</span><span class="m">${b?`${Math.round(b.acc)}% acc · ${new Date(b.t).toLocaleDateString()}`:'no runs yet'}${n?` · ${n} run${n>1?'s':''}`:''}</span></div>`;
+  }).join('');
+  renderFilters();
+  const ALL=hist(), H=ALL.filter(passes);
+  $('histCount').textContent = ALL.length ? (H.length===ALL.length ? `${ALL.length} test${ALL.length>1?'s':''}` : `${H.length} of ${ALL.length} tests`) : '';
+  $('histEmpty').hidden = H.length>0;
+  $('histEmpty').textContent = ALL.length ? 'No tests match these filters.' : 'Finish a test and it will show up here.';
+  $('histBody').innerHTML = H.slice(-12).reverse().map(h=>`<tr><td>${new Date(h.t).toLocaleString([], {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</td><td>${lenName(h)}${h.ptv?' · '+h.ptv.toUpperCase():''} · ${levelName(h)}${h.trans==='after'?' · +English':h.trans==='hidden'?' · +English hidden':h.trans==='off'?' · no transl.':''}</td><td><span class="chip ${h.accents?'on':'off'}">${h.accents?'on':'off'}</span></td><td class="n">${Math.round(h.wpm)}</td><td class="n">${Math.round(h.raw)}</td><td class="n">${Math.round(h.acc)}%</td><td class="n">${h.cons}%</td></tr>`).join('');
+  if(!window.Chart) return;
+  histChart && histChart.destroy();
+  const o=baseOpts(); o.scales.x.title={display:true,text:'test #',color:tok('--muted')};
+  o.plugins.tooltip.callbacks={afterBody:(it)=>{ const h=H[it[0].dataIndex]; return h?`${lenName(h)} · ${h.accents?'accents':'no accents'} · ${h.acc}% acc`:''; }};
+  const ser=(d)=>H.map(h=>h.dur===d?h.wpm:null);
+  const pts=(d,c)=>({pointBackgroundColor:H.map(h=>h.accents?c:tok('--surface')),pointBorderColor:c,pointBorderWidth:2,pointRadius:4});
+  o.plugins.legend.labels.generateLabels=(ch)=>{ const base=Chart.defaults.plugins.legend.labels.generateLabels(ch); base.push({text:'● accents on   ○ accents off',fillStyle:'transparent',strokeStyle:'transparent',fontColor:tok('--muted'),lineWidth:0,hidden:false,datasetIndex:-1}); return base; };
+  o.plugins.legend.onClick=(e,item,legend)=>{ if(item.datasetIndex>=0) Chart.defaults.plugins.legend.onClick(e,item,legend); };
+  // rolling average of last 5 across all modes
+  const avg=H.map((_,i)=>{ const w=H.slice(Math.max(0,i-4),i+1); return +(w.reduce((a,b)=>a+b.wpm,0)/w.length).toFixed(1); });
+  histChart=new Chart($('histChart'),{type:'line',data:{labels:H.map((_,i)=>i+1),datasets:[
+    {label:'30s',data:ser(30),borderColor:tok('--accent'),backgroundColor:tok('--accent'),spanGaps:true,borderWidth:2,tension:.2,...pts(30,tok('--accent'))},
+    {label:'1 min',data:ser(60),borderColor:tok('--accent-2'),backgroundColor:tok('--accent-2'),spanGaps:true,borderWidth:2,tension:.2,...pts(60,tok('--accent-2'))},
+    {label:'∞',data:ser(0),borderColor:tok('--ok'),backgroundColor:tok('--ok'),spanGaps:true,borderWidth:2,tension:.2,...pts(0,tok('--ok'))},
+    {label:'avg of last 5',data:avg,borderColor:tok('--muted'),borderDash:[4,4],pointRadius:0,borderWidth:1.5,tension:.3}
+  ]},options:o});
+}
+
+const GR = {KeyQ:';',KeyW:'ς',KeyE:'ε',KeyR:'ρ',KeyT:'τ',KeyY:'υ',KeyU:'θ',KeyI:'ι',KeyO:'ο',KeyP:'π',KeyA:'α',KeyS:'σ',KeyD:'δ',KeyF:'φ',KeyG:'γ',KeyH:'η',KeyJ:'ξ',KeyK:'κ',KeyL:'λ',KeyZ:'ζ',KeyX:'χ',KeyC:'ψ',KeyV:'ω',KeyB:'β',KeyN:'ν',KeyM:'μ'};
+const TONOS = {α:'ά',ε:'έ',η:'ή',ι:'ί',ο:'ό',υ:'ύ',ω:'ώ',ϊ:'ΐ',ϋ:'ΰ'};
+const DIAL = {ι:'ϊ',υ:'ϋ',ί:'ΐ',ύ:'ΰ'};
+const isGreek = c => /[Ͱ-Ͽἀ-῿]/.test(c);
+const isLatin = c => /^[A-Za-z]$/.test(c);
+function setKb(s){
+  if(s===kbState) return; kbState=s;
+  const el=$('kb'); el.dataset.s=s;
+  $('kbText').textContent = {unknown:'Keyboard: press a key', greek:'Greek keyboard on', mapped:'Latin keys → Greek', en:'English word', toLatin:'Greek keys → Latin', latin:'Latin keyboard: switch to Greek'}[s];
+}
+const L2G = {}, G2L = {};
+for(const [code,g] of Object.entries(GR)) if(/^Key[A-Z]$/.test(code) && g!==';'){ const l=code.slice(3).toLowerCase(); L2G[l]=g; G2L[g]=l; }
+G2L['σ']='s';
+function insertText(t){ input.value += t; onInput(); }
+function onKeyMapPt(e){
+  if(e.ctrlKey||e.metaKey||e.altKey||e.isComposing||finished||!mapKeys) return false;
+  const code=e.code;
+  const clearDead=()=>{ dead=null; caret.classList.remove('dead'); };
+  if(lang[cur]==='en'){
+    if(/^Key[A-Z]$/.test(code)){ e.preventDefault(); clearDead(); const c=code.slice(3); insertText(e.shiftKey?c:c.toLowerCase()); return true; }
+    return false;
+  }
+  const L=LAYOUTS[ptv], deadKeys={};
+  for(const [m,[c,sh]] of Object.entries(L.marks)){ (deadKeys[c] ||= [null,null])[sh?1:0]=m; }
+  if(code in deadKeys){ e.preventDefault(); dead=deadKeys[code][e.shiftKey?1:0]; caret.classList.toggle('dead',!!dead); return true; }
+  let ch=null;
+  for(const row of L.rows) for(const [c,lab] of row) if(c===code && [...lab].length===1) ch=lab;
+  if(!ch) return false;
+  e.preventDefault();
+  let out = e.shiftKey ? ch.toUpperCase() : ch;
+  if(dead && typeof dead==='string' && dead.length===1){ const comp=(out+dead).normalize('NFC'); if([...comp].length===1) out=comp; }
+  clearDead(); insertText(out); return true;
+}
+function onKeyMap(e){
+  if(cl==='pt') return onKeyMapPt(e);
+  if(cl!=='el' || e.ctrlKey||e.metaKey||e.altKey||e.isComposing||finished) return false;
+  const k=e.key;
+  if(lang[cur]==='en'){
+    if(dead){ dead=null; caret.classList.remove('dead'); }
+    if(/^Key[A-Z]$/.test(e.code) && k.length===1 && isGreek(k)){ e.preventDefault(); const c=e.code.slice(3); insertText(e.shiftKey?c:c.toLowerCase()); setKb('toLatin'); return true; }
+    if(k==='Dead'){ e.preventDefault(); return true; }
+    if(isLatin(k)) setKb('en');
+    return false;
+  }
+  if(k.length===1 && isGreek(k)){ setKb('greek'); return false; }
+  const code=e.code;
+  const isDeadKey = code==='Semicolon' && kbState!=='greek';
+  if(!(code in GR) && !isDeadKey) return false;
+  if(k.length===1 && isLatin(k) || k==='Dead' || isDeadKey){
+    if(!mapKeys){ if(isLatin(k)) setKb('latin'); return false; }
+    e.preventDefault(); setKb('mapped');
+    if(isDeadKey){ dead = e.shiftKey ? 'dial' : 'tonos'; caret.classList.add('dead'); return true; }
+    let ch = GR[code];
+    if(ch===';'){ dead=null; caret.classList.remove('dead'); return true; }
+    if(dead==='tonos' && TONOS[ch]) ch=TONOS[ch];
+    else if(dead==='dial' && DIAL[ch]) ch=DIAL[ch];
+    dead=null; caret.classList.remove('dead');
+    if(e.shiftKey) ch=ch.toUpperCase();
+    insertText(ch); return true;
+  }
+  return false;
+}
+
+function focusInput(){ if(!finished) input.focus({preventScroll:true}); }
+
+input.addEventListener('input', e=>{ if(e.isComposing) return; onInput(); });
+input.addEventListener('compositionend', onInput);
+input.addEventListener('keydown', e=>{
+  if(onKeyMap(e)) return;
+  if(e.key==='Backspace' && dead){ e.preventDefault(); dead=null; caret.classList.remove('dead'); return; }
+  if(e.key==='Backspace' && input.value==='' && cur>0 && typed[cur-1]!==words[cur-1] && !finished){
+    e.preventDefault(); cur--; inputPrev=typed[cur]; input.value=inputPrev; typed[cur]=undefined;
+    renderWord(cur+1); renderWord(cur); placeCaret();
+  }
+});
+input.addEventListener('focus',()=>{ $('overlay').hidden=true; $('stage').classList.remove('blur'); });
+input.addEventListener('blur',()=>{ if(!finished){ setTimeout(()=>{ if(document.activeElement!==input && !finished){ $('overlay').hidden=false; $('stage').classList.add('blur'); } },150); } });
+$('stage').addEventListener('click', focusInput);
+document.addEventListener('keydown', e=>{
+  if(finished){
+    if(['Tab',' ','Enter'].includes(e.key)) e.preventDefault();
+    if(performance.now() < lockUntil) return;
+    if(e.key==='Enter' || e.key==='Tab' || e.key==='Escape') reset();
+    return;
+  }
+  if(e.key==='Tab'){ e.preventDefault(); reset(); return; }
+  if(e.key==='Escape'){ if(dur===0 && started && !finished){ finish(); return; } reset(); return; }
+  const ae=document.activeElement, tag=ae&&ae.tagName;
+  const otherField = tag==='SELECT' || tag==='TEXTAREA' || (tag==='INPUT' && ae!==input && !['checkbox','radio','button'].includes(ae.type));
+  if(ae!==input && e.key.length===1 && e.key!==' ' && !e.ctrlKey && !e.metaKey && !e.altKey && !otherField){
+    // the first key after clicking elsewhere: send it through the same conversion as normal typing
+    e.preventDefault(); focusInput();
+    if(!onKeyMap(e)) insertText(e.key);
+  }
+});
+document.querySelectorAll('[data-d]').forEach(b=>b.addEventListener('click',()=>{ dur=+b.dataset.d; store.settings.dur=dur; save(); reset(); }));
+$('acc').addEventListener('change',e=>{ accents=e.target.checked; store.settings.accents=accents; save(); reset(); });
+$('restart').addEventListener('click', reset);
+function setTrans(t){ trans=t; gloss=t==='under'; store.settings.trans=t; save(); field.classList.toggle('nogloss',!gloss); document.querySelectorAll('[data-t]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.t===t))); }
+document.querySelectorAll('[data-t]').forEach(b=>b.addEventListener('click',()=>{ setTrans(b.dataset.t); reset(); renderStats(); }));
+setTrans(trans);
+function setVoice(m){ voiceMode=m; store.settings.voice=m; save(); document.querySelectorAll('[data-v]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===m))); if(m==='off' && TTS) TTS.cancel(); }
+document.querySelectorAll('[data-v]').forEach(b=>b.addEventListener('click',()=>{ setVoice(b.dataset.v); if(b.dataset.v!=='off' && started) say(cur); focusInput(); }));
+if(TTS){ loadVoices(); TTS.addEventListener ? TTS.addEventListener('voiceschanged',loadVoices) : (TTS.onvoiceschanged=loadVoices); }
+else { $('voiceNote').textContent='not supported in this browser'; }
+setVoice(voiceMode);
+const LET = c => ['Key'+c, c.toLowerCase()];
+const QP='QWERTYUIOP'.split('').map(LET), AL='ASDFGHJKL'.split('').map(LET), ZM='ZXCVBNM'.split('').map(LET);
+const LAYOUTS = {
+  el:{name:'Greek', rows:[
+    [['KeyQ',';'],['KeyW','ς'],['KeyE','ε'],['KeyR','ρ'],['KeyT','τ'],['KeyY','υ'],['KeyU','θ'],['KeyI','ι'],['KeyO','ο'],['KeyP','π'],['BracketLeft','['],['BracketRight',']']],
+    [['KeyA','α'],['KeyS','σ'],['KeyD','δ'],['KeyF','φ'],['KeyG','γ'],['KeyH','η'],['KeyJ','ξ'],['KeyK','κ'],['KeyL','λ'],['Semicolon','΄¨'],['Quote',"'"]],
+    [['KeyZ','ζ'],['KeyX','χ'],['KeyC','ψ'],['KeyV','ω'],['KeyB','β'],['KeyN','ν'],['KeyM','μ'],['Comma',','],['Period','.'],['Slash','/']]],
+    marks:{'́':['Semicolon',false],'̈':['Semicolon',true]}},
+  pt:{name:'Portuguese (Portugal)', rows:[
+    [...QP,['BracketLeft','+'],['BracketRight','´`']],
+    [...AL,['Semicolon','ç'],['Quote','º'],['Backslash','~^']],
+    [['IntlBackslash','<'],...ZM,['Comma',','],['Period','.'],['Slash','-']]],
+    marks:{'́':['BracketRight',false],'̀':['BracketRight',true],'̃':['Backslash',false],'̂':['Backslash',true]}},
+  br:{name:'Portuguese (Brazil, ABNT2)', rows:[
+    [...QP,['BracketLeft','´`'],['BracketRight','[']],
+    [...AL,['Semicolon','ç'],['Quote','~^'],['Backslash',']']],
+    [['IntlBackslash','\\'],...ZM,['Comma',','],['Period','.'],['Slash',';']]],
+    marks:{'́':['BracketLeft',false],'̀':['BracketLeft',true],'̃':['Quote',false],'̂':['Quote',true]}}
+};
+let kbdOn = !!store.settings.kbd, kbdLayout = null, kbdMap = {};
+function layoutKey(){ return cl==='el' ? 'el' : ptv; }
+function buildKbd(){
+  const L = LAYOUTS[layoutKey()]; kbdLayout=L; kbdMap={};
+  $('kbd').innerHTML = L.rows.map(row=>'<div class="krow">'+row.map(([code,lab])=>{ if(lab.length===1) kbdMap[lab]=code; return `<span class="key${lab.length>1&&!/^[^a-z]$/.test(lab)&&lab.length>1?' small':''}" data-code="${code}">${lab.replace(/</g,'&lt;')}</span>`; }).join('')+'</div>').join('') + '<div class="krow"><span class="key space" data-code="Space">space</span></div>';
+  $('kbdNote').innerHTML = `${L.name} layout<i style="background:var(--accent)"></i>next key<i style="background:var(--accent-2)"></i>accent key first (with Shift where needed)`;
+}
+function keysFor(ch, isEn){
+  if(ch===' ') return [['Space',false]];
+  if(ch==='ç' && !isEn && cl!=='el') return [[accents?'Semicolon':'KeyC',false]];
+  const d = ch.normalize('NFD'), base=d[0], marks=d.slice(1);
+  const code = isEn ? (/[a-z]/i.test(base) ? 'Key'+base.toUpperCase() : null) : (kbdMap[base] || (/[a-z]/i.test(base)?'Key'+base.toUpperCase():null));
+  const out=[];
+  if(!isEn && accents) for(const m of marks){ const mk=kbdLayout.marks[m]; if(mk) out.push([mk[0],true]); }
+  if(code) out.push([code,false]);
+  return out;
+}
+function updateKbd(){
+  if(!kbdOn || !kbdLayout) return;
+  document.querySelectorAll('#kbd .kn,#kbd .kd').forEach(k=>k.classList.remove('kn','kd'));
+  if(finished || !shown[cur]) return;
+  const disp=[...shown[cur]], n=[...inputPrev].length;
+  const ch = n<disp.length ? disp[n] : ' ';
+  keysFor(ch, lang[cur]==='en').forEach(([code,isDead])=>{ const k=document.querySelector(`#kbd [data-code="${code}"]`); if(k) k.classList.add(isDead?'kd':'kn'); });
+}
+function setKbd(on){ kbdOn=on; store.settings.kbd=on; save(); $('kbdWrap').hidden=!on; $('kbdBtn').setAttribute('aria-pressed',String(on)); $('kbdBtn').lastChild.textContent = on ? 'Hide keyboard layout' : 'Show keyboard layout'; if(on){ buildKbd(); updateKbd(); } }
+$('kbdBtn').addEventListener('click',()=>{ setKbd(!kbdOn); focusInput(); });
+
+function applyLang(){
+  const L=LANGS[cl];
+  if(cl!=='el' && level==='category') level='beginner';
+  $('catBtn').hidden = cl!=='el'; $('catSel').hidden = level!=='category'; $('catSel').value=cat;
+  L.words = poolFor(cl, ptv, level);
+  document.querySelectorAll('[data-lv]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.lv===level)));
+  if(cl==='pt'){ const br=ptv==='br'; L.tts=br?'pt-BR':'pt-PT'; L.sub=(br?'Brazilian':'European')+' Portuguese · palavras por minuto'; }
+  WORDS=L.words; GLOSS=L.gloss;
+  $('ptvWrap').hidden = cl!=='pt';
+  document.querySelectorAll('[data-ptv]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.ptv===ptv)));
+  $('h1').innerHTML=L.h1; $('sub').textContent=L.sub; input.lang=L.input;
+  const g = cl==='el';
+  $('kb').hidden=!g; $('elHint').hidden=!g;
+  document.querySelectorAll('[data-lang]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.lang===cl)));
+  kbState=''; setKb('unknown'); loadVoices();
+  setKbd(kbdOn);
+  if(typeof renderCounts==='function' && $('wcPanel')) renderCounts();
+}
+$('catSel').innerHTML = '<optgroup label="Everyday 2000 (shared word list)">' + Object.entries(CATS).filter(([k,c])=>c.freq).map(([k,c])=>`<option value="${k}">${c.short}</option>`).join('') + '</optgroup><optgroup label="Prefixes">' + Object.entries(CATS).filter(([k,c])=>c.prefix).map(([k,c])=>`<option value="${k}">${c.short}</option>`).join('') + '</optgroup><optgroup label="Topics">' + ['hp','cook','cars'].map(k=>`<option value="${k}">${CATS[k].name.replace('&','&amp;')}</option>`).join('') + '</optgroup><optgroup label="Starting letter">' + Object.entries(CATS).filter(([k,c])=>c.letter).map(([k,c])=>`<option value="${k}">${c.short} · ${Object.keys(c.words).length} words</option>`).join('') + '</optgroup>';
+$('catSel').addEventListener('change',e=>{ cat=e.target.value; store.settings.cat=cat; save(); applyLang(); reset(); renderStats(); });
+document.querySelectorAll('[data-lv]').forEach(b=>b.addEventListener('click',()=>{ if(b.dataset.lv===level) return; level=b.dataset.lv; store.settings.level=level; save(); applyLang(); reset(); renderStats(); }));
+document.querySelectorAll('[data-ptv]').forEach(b=>b.addEventListener('click',()=>{ if(b.dataset.ptv===ptv) return; ptv=b.dataset.ptv; store.settings.ptv=ptv; save(); applyLang(); reset(); }));
+document.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',()=>{ if(b.dataset.lang===cl) return; cl=b.dataset.lang; store.settings.lang=cl; save(); applyLang(); reset(); renderStats(); }));
+applyLang();
+$('next').addEventListener('click', ()=>{ if(performance.now() >= lockUntil) reset(); });
+$('clear').addEventListener('click',()=>{ $('clear').hidden=true; $('confirmBox').hidden=false; });
+$('clearNo').addEventListener('click',()=>{ $('clear').hidden=false; $('confirmBox').hidden=true; });
+$('clearYes').addEventListener('click',()=>{ store.hist[cl]=[]; save(); syncClear(cl); $('clear').hidden=false; $('confirmBox').hidden=true; renderStats(); });
+window.addEventListener('resize',()=>{ if(!finished) placeCaret(); });
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{ renderStats(); if(!$('resultView').hidden) drawRun(lastRun); });
+new MutationObserver(()=>{ renderStats(); if(!$('resultView').hidden) drawRun(lastRun); }).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+document.fonts && document.fonts.ready.then(()=>{ fitAll(); placeCaret(); });
+document.querySelectorAll('[data-wcs]').forEach(b=>b.addEventListener('click',()=>{ wcScope=b.dataset.wcs; store.settings.wcScope=wcScope; save(); renderCounts(); }));
+document.querySelectorAll('[data-wco]').forEach(b=>b.addEventListener('click',()=>{ wcSort=b.dataset.wco; store.settings.wcSort=wcSort; save(); renderCounts(); }));
+$('wcSearch').addEventListener('input', renderCounts);
+$('wcSearch').addEventListener('keydown', e=>e.stopPropagation());
+// ---- export / import: move stats between browsers or devices by file (merges, never overwrites)
+let ioT=0;
+function ioNote(t){ $('ioNote').textContent=t; clearTimeout(ioT); ioT=setTimeout(()=>$('ioNote').textContent='',4000); }
+function exportStats(){
+  saveCountsLocal();
+  const data={app:'language-typing-test', version:1, exported:new Date().toISOString(), hist:store.hist, counts:COUNTS};
+  const url=URL.createObjectURL(new Blob([JSON.stringify(data)],{type:'application/json'}));
+  const a=document.createElement('a'); a.href=url; a.download='typing-stats-'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),2000);
+  ioNote('Exported');
+}
+async function importStats(file){
+  try{
+    const d=JSON.parse(await file.text());
+    if(!d || typeof d!=='object' || !d.hist) throw new Error('bad file');
+    const remote={el:{},pt:{}};
+    for(const L of ['el','pt']) for(const r of (Array.isArray(d.hist[L])?d.hist[L]:[])) if(r && r.t) remote[L][runKey(r)]=r;
+    mergeRemote(remote,{}); save();
+    let words=0;
+    for(const L of ['el','pt']){ const c=counts(L);
+      for(const [w,v] of Object.entries((d.counts||{})[L]||{})){ if(!Array.isArray(v)) continue; const e=c[w]||(c[w]=[0,0]); e[0]=Math.max(e[0],v[0]|0); e[1]=Math.max(e[1],v[1]|0); words++; } }
+    saveCountsLocal(); renderStats(); renderCounts();
+    const runs=(d.hist.el||[]).length+(d.hist.pt||[]).length;
+    ioNote('Imported '+runs+' results and '+words+' word stats');
+  }catch(e){ ioNote("That file isn't a stats export"); }
+}
+$('exportBtn').addEventListener('click', exportStats);
+$('importBtn').addEventListener('click', ()=>$('importFile').click());
+$('importFile').addEventListener('change', e=>{ const f=e.target.files[0]; if(f) importStats(f); e.target.value=''; });
+
+reset(); renderStats(); renderCounts(); initCountSync();
+startSync();
+</script>
+
+
+</body></html>
