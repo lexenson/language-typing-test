@@ -2,6 +2,8 @@
 
 Typing practice for **Greek** and **Portuguese** (PT/BR): timed tests, translations under or after each word, optional voice, personal bests, progress charts and per-word stats.
 
+Both languages have word categories: the 2,000 most common words in sets of 100 (1–100, 101–200, … 1901–2000) and Harry Potter vocabulary. Greek also has prefix and starting-letter sets. The Portuguese top 2,000 is ranked from [wordfreq](https://github.com/rspeer/wordfreq) data, grouped by dictionary form and checked by hand. Words spelled differently in Portugal and Brazil (equipa/equipe, facto/fato, comboio/trem) follow the PT/BR switch.
+
 It's a single static page (`index.html`) with no build step.
 
 ## Stats
