@@ -150,6 +150,9 @@ td.n,th.n{text-align:right}
 .wcsearch{font-family:var(--mono);max-width:240px;flex:1 1 180px;padding:7px 10px}
 td.wcw{font-family:var(--type);font-size:1rem}
 td.wcg{color:var(--muted);white-space:normal;min-width:120px}
+.wrap>header,.wrap>.bar,.wrap>section:not(#testView),.hint{transition:opacity .3s ease,visibility .3s}
+body.zen.typing .wrap>header,body.zen.typing .wrap>.bar,body.zen.typing .wrap>section:not(#testView),body.zen.typing .hint{opacity:0;visibility:hidden;pointer-events:none}
+@media (prefers-reduced-motion:reduce){.wrap>header,.wrap>.bar,.wrap>section:not(#testView),.hint{transition:none}}
 @media (prefers-reduced-motion:reduce){.words,.caret,.sw,.sw::after{transition:none}.caret.idle{animation:none}}
 </style>
 
@@ -168,6 +171,7 @@ td.wcg{color:var(--muted);white-space:normal;min-width:120px}
       <button id="d0" data-d="0" title="Endless: no time limit, nothing saved" aria-label="Endless">∞</button>
     </div>
     <label class="toggle" for="acc"><input type="checkbox" id="acc" checked><span class="sw"></span>Accents required</label>
+    <label class="toggle" for="zen" title="Hide everything but the words while you type"><input type="checkbox" id="zen"><span class="sw"></span>Zen mode</label>
     <span class="bar" style="gap:8px"><span class="sub">Words</span><span class="seg" role="group" aria-label="Word level"><button data-lv="beginner">Beginner</button><button data-lv="intermediate">Intermediate</button><button data-lv="advanced">Advanced</button><button data-lv="all">All</button><button data-lv="category" id="catBtn">Category</button></span><select id="catSel" class="vsel" aria-label="Category" hidden></select></span>
     <span class="bar" style="gap:8px"><span class="sub">Translations</span><span class="seg" role="group" aria-label="Translations"><button id="tOff" data-t="off">Off</button><button id="tUnder" data-t="under">Under</button><button id="tAfter" data-t="after">After</button><button id="tHidden" data-t="hidden" title="The translation stays hidden until you finish the Greek word">After hidden</button></span></span>
     <span class="bar" style="gap:8px"><span class="sub">Voice</span><span class="seg" role="group" aria-label="Voice"><button data-v="off">Off</button><button data-v="on">On</button></span><select id="voiceSel" class="vsel" aria-label="Voice" hidden></select><select id="enVoiceSel" class="vsel" aria-label="Voice for English translations" hidden></select><span class="sub" id="voiceNote"></span></span>
@@ -409,6 +413,7 @@ const input = $('hidden'), wordsEl = $('words'), caret = $('caret'), field = $('
 function pick(n){ const out=[]; let prev=''; while(out.length<n){ const w=WORDS[Math.random()*WORDS.length|0]; if(w!==prev){out.push(w); prev=w;} } return out; }
 
 function reset(){
+  setTyping(false);
   autosave();
   clearInterval(tick);
   orig=[]; words=[]; shown=[]; lang=[]; grp=[]; addWords(pick(trans==='after'||trans==='hidden'?80:140)); typed = []; cur = 0; inputPrev = ''; started=false; finished=false;
@@ -488,7 +493,7 @@ function onInput(){
   const last=[...v].pop();
   if(cl!=='el' || lang[cur]==='en'){} else if(!mapKeys && last && isLatin(last)) setKb('latin'); else if(last && isGreek(last) && kbState!=='mapped') setKb('greek');
   if(!started && v.trim()==='') { input.value=''; return; }
-  lastKeyT=performance.now();
+  lastKeyT=performance.now(); setTyping(true);
   if(paused) resume();
   if(!started){ started=true; startT=performance.now(); sessDur=dur; sessLang=cl; sid=Date.now()+'-'+Math.random().toString(36).slice(2,7); sessStart=Date.now(); lastSaveT=performance.now(); caret.classList.remove('idle'); tick=setInterval(onTick,100); if(voiceMode==='on') say(cur); }
   const sp = v.indexOf(' ');
@@ -719,7 +724,7 @@ document.addEventListener('visibilitychange',()=>{ if(document.hidden){ autosave
 window.addEventListener('pagehide', ()=>{ autosave(); flushCounts(); });
 function finish(){
   flushCounts();
-  finished=true; clearInterval(tick); input.blur();
+  finished=true; clearInterval(tick); input.blur(); setTyping(false);
   const {rec, endless, secs, wpm, raw, acc, cons, ok, bad, extra, missed, correctWords} = buildRecord();
   const prevBest = endless ? null : bestFor(sessDur, accents);
   const isPb = !endless && keysTotal>0 && (!prevBest || rec.wpm>prevBest.wpm);
@@ -916,6 +921,13 @@ document.addEventListener('keydown', e=>{
   }
 });
 document.querySelectorAll('[data-d]').forEach(b=>b.addEventListener('click',()=>{ dur=+b.dataset.d; store.settings.dur=dur; save(); reset(); }));
+// zen mode: while a test is running everything but the words fades out; moving the mouse brings it back
+function setTyping(on){ document.body.classList.toggle('typing', on); }
+function setZen(on){ document.body.classList.toggle('zen', on); $('zen').checked=on; }
+setZen(!!store.settings.zen);
+$('zen').addEventListener('change',e=>{ store.settings.zen=e.target.checked; save(); setZen(e.target.checked); focusInput(); });
+let zenMouse=null;
+document.addEventListener('mousemove',e=>{ if(!document.body.classList.contains('typing')){ zenMouse=null; return; } if(!zenMouse){ zenMouse=[e.clientX,e.clientY]; return; } if(Math.hypot(e.clientX-zenMouse[0], e.clientY-zenMouse[1])>20){ zenMouse=null; setTyping(false); } });
 $('acc').addEventListener('change',e=>{ accents=e.target.checked; store.settings.accents=accents; save(); reset(); });
 $('restart').addEventListener('click', reset);
 function setTrans(t){ trans=t; gloss=t==='under'; store.settings.trans=t; save(); field.classList.toggle('nogloss',!gloss); document.querySelectorAll('[data-t]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.t===t))); }
