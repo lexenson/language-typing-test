@@ -211,7 +211,7 @@ body.zen.typing .wrap>header,body.zen.typing .wrap>.bar,body.zen.typing .wrap>se
   </section>
 
   <section style="display:flex;flex-direction:column;gap:16px">
-    <div class="rowhead"><h2>Personal bests</h2><span class="sub" id="syncNote">saved in this browser</span></div>
+    <div class="rowhead"><h2>Personal bests</h2><span><span class="sub" id="syncNote">saved in this browser</span> <button class="btn" id="acctBtn" title="Sign in to keep your stats in sync on all your devices" hidden>Sign in with Google to sync</button></span></div>
     <div class="bests" id="bests"></div>
   </section>
 
@@ -536,12 +536,19 @@ function correctChars(){
 }
 
 
-// ---- lifetime word counts: [times typed, times typed correctly] per word, kept in this browser and in your account
-const KEY_C = 'greek-typing.counts.v1';
-let COUNTS = {el:{}, pt:{}};
+// ---- lifetime word counts: [times typed, times typed correctly] per word, kept in this browser and in your account.
+// COUNTS is what this device typed; OTHERS is the sum of your other devices, so the totals add up instead of overwriting each other.
+const KEY_C = 'greek-typing.counts.v1', KEY_O = 'greek-typing.counts-others.v1', KEY_D = 'greek-typing.device';
+let COUNTS = {el:{}, pt:{}}, OTHERS = {el:{}, pt:{}};
 try{ const s=JSON.parse(localStorage.getItem(KEY_C)); if(s) for(const l in s) COUNTS[l]=s[l]||{}; }catch(e){}
+try{ const s=JSON.parse(localStorage.getItem(KEY_O)); if(s) for(const l in s) OTHERS[l]=s[l]||{}; }catch(e){}
+let DEVICE=''; try{ DEVICE=localStorage.getItem(KEY_D)||''; }catch(e){}
+if(!DEVICE){ DEVICE=Math.random().toString(36).slice(2,12); try{ localStorage.setItem(KEY_D, DEVICE); }catch(e){} }
 let wcRef=null, wcDirty={}, wcLocalT=0, wcRemoteT=0, wcBusy=false;
 function counts(l=cl){ return COUNTS[l] || (COUNTS[l]={}); }
+// this device plus every other device on your account
+function allCounts(l=cl){ const o={}; for(const src of [counts(l), OTHERS[l]||{}]) for(const [w,[a,b]] of Object.entries(src)){ const e=o[w]||(o[w]=[0,0]); e[0]+=a; e[1]+=b; } return o; }
+function readCountDoc(l, x){ const sum={}; for(const [dev,json] of Object.entries(x.dev||{})){ if(dev===DEVICE) continue; let c={}; try{ c=JSON.parse(json); }catch(e){} for(const [w,[a,b]] of Object.entries(c)){ const e=sum[w]||(sum[w]=[0,0]); e[0]+=a|0; e[1]+=b|0; } } OTHERS[l]=sum; try{ localStorage.setItem(KEY_O, JSON.stringify(OTHERS)); }catch(e){} }
 function bump(w, ok){
   const e = counts()[w] || (counts()[w]=[0,0]);
   e[0]++; if(ok) e[1]++;
@@ -555,33 +562,15 @@ async function pushCounts(){
   if(!wcRef || wcBusy) return;
   const langs=Object.keys(wcDirty).filter(l=>wcDirty[l]); if(!langs.length) return;
   wcBusy=true;
-  try{ for(const l of langs){ wcDirty[l]=false; await wcRef.doc('wc_'+l).set({json:JSON.stringify(counts(l)), t:Date.now()}); } setWcNote('Saved to your account'); }
+  try{ for(const l of langs){ wcDirty[l]=false; await wcRef.doc('wc_'+l).set({dev:{[DEVICE]:JSON.stringify(counts(l))}}, {merge:true}); } setWcNote(acctNote('Saved to your account')); }
   catch(e){ langs.forEach(l=>wcDirty[l]=true); setWcNote('Saved in this browser · account sync failed'); }
   wcBusy=false;
 }
 function setWcNote(t){ $('wcNote').textContent=t; }
-async function initCountSync(){
-  if(!window.claude || !window.claude.use) return;
-  const [db, user] = await Promise.all([claude.use('db'), claude.use('user')]);
-  const id = user ? await user.id() : null;
-  if(!db || !id){ setWcNote('Saved in this browser'); return; }
-  wcRef = db.collection('data/users/'+id);
-  try{
-    for(const l of ['el','pt']){
-      const snap = await wcRef.doc('wc_'+l).get();
-      let remote = {}; try{ remote = snap.exists ? JSON.parse(snap.data().json||'{}') : {}; }catch(e){}
-      const loc = counts(l); let differs=false;
-      for(const [w,[a,b]] of Object.entries(remote)){ const e=loc[w]||(loc[w]=[0,0]); if(a>e[0]){e[0]=a;} if(b>e[1]){e[1]=b;} }
-      for(const [w,e] of Object.entries(loc)){ const r=remote[w]; if(!r || r[0]!==e[0] || r[1]!==e[1]) differs=true; }
-      if(differs) wcDirty[l]=true;
-    }
-    saveCountsLocal(); setWcNote('Saved to your account'); renderCounts(); pushCounts();
-  }catch(e){ wcRef=null; setWcNote('Saved in this browser · account sync unavailable'); }
-}
 let wcScope = store.settings.wcScope==='all' ? 'all' : 'set', wcSort = store.settings.wcSort==='least' ? 'least' : 'most';
 const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function renderCounts(){
-  const C=counts(), pool=[...new Set(WORDS)];
+  const C=allCounts(), pool=[...new Set(WORDS)];
   const all=Object.entries(C), total=all.reduce((a,[,e])=>a+e[0],0);
   const seen=pool.filter(w=>C[w]&&C[w][0]>0).length;
   $('wcTotal').textContent=total.toLocaleString();
@@ -655,22 +644,27 @@ function upsertSession(rec){ const L=sessLang, hh=store.hist[L]||(store.hist[L]=
 
 /* ---------- Sync across devices ----------
    Each signed-in person's results live in their own private part of this app's database:
-   one document per language and month (data/users/<id>/typing-<lang>-<yyyymm>) holding {runs:{key:run}},
-   plus typing-meta with the time each language's history was last cleared.
+   one document per language and month (users/<uid>/data/typing-<lang>-<yyyymm>) holding {runs:{key:run}},
+   typing-meta with the time each language's history was last cleared, and wc_<lang> with the word counts.
+   Storage is Firebase (Firestore + Auth). Every visitor gets a silent anonymous account; signing in with Google
+   upgrades it, so the same results show up on every device signed in to that Google account.
    On load, local and stored results are joined (a union), so nothing recorded on any device is lost. */
-const SYNC = {db:null, base:'', docs:new Set(), q:Promise.resolve(), cleared:{}, state:'local'};
+const FB = {auth:null, db:null, user:null};
+const SYNC = {db:null, base:'', uid:'', docs:new Set(), q:Promise.resolve(), cleared:{}, state:'local', unsub:null};
 const runKey = r => r.sid || ('t'+r.t+'-'+r.dur);
 const slim = r => { const o={...r}; delete o.samples; return o; };
 const monthOf = t => { const d=new Date(t); return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0'); };
 const better = (a,b) => (a.secs||0) > (b.secs||0);
-function setSyncNote(st){ SYNC.state=st; const el=$('syncNote'); if(el) el.textContent = st==='synced' ? 'synced across your devices' : st==='syncing' ? 'syncing…' : st==='offline' ? 'saved on this device; sync unreachable right now' : 'saved in this browser'; }
+// anonymous accounts are only a backup of this browser, so they don't claim to be synced
+const signedIn = () => !!(FB.user && !FB.user.isAnonymous);
+const acctNote = t => signedIn() ? t : 'Saved in this browser';
+function setSyncNote(st){ SYNC.state=st; const el=$('syncNote'); if(!el) return;
+  el.textContent = st==='signin-failed' ? "couldn't sign in, try again" : st==='offline' ? 'saved on this device; sync unreachable right now' : !signedIn() ? 'saved in this browser' : st==='synced' ? 'synced as '+(FB.user.email||'you') : st==='syncing' ? 'syncing…' : 'saved in this browser'; }
 // one write at a time, in order; a failed write is retried once, then left for the next load to repair
 function enqueue(fn){ SYNC.q = SYNC.q.then(()=>fn().catch(e=>{ if(e && e.code==='unavailable') return new Promise(res=>setTimeout(res,800+Math.random()*800)).then(fn).catch(()=>{}); })); return SYNC.q; }
 function writeRuns(docId, runs){
   return enqueue(async ()=>{
-    const ref=SYNC.db.doc(SYNC.base+'/'+docId);
-    if(SYNC.docs.has(docId)){ await ref.update({runs}); }
-    else { try{ await ref.update({runs}); }catch(e){ if(e && e.code!=='invalid_argument') throw e; await ref.set({runs}); } SYNC.docs.add(docId); }
+    await SYNC.db.doc(SYNC.base+'/'+docId).set({runs}, {merge:true}); SYNC.docs.add(docId);
   });
 }
 function syncRun(L, rec){ if(!SYNC.db) return; writeRuns(`typing-${L}-${monthOf(rec.t)}`, {[runKey(rec)]: slim(rec)}); }
@@ -691,31 +685,31 @@ function readSnapshot(docs){
   const remote={el:{},pt:{}}; let cleared={};
   for(const d of docs){ const x=d.data()||{}; SYNC.docs.add(d.id);
     if(d.id==='typing-meta') cleared=x.clearedAt||{};
+    else if(/^wc_(el|pt)$/.test(d.id)) readCountDoc(d.id.slice(3), x);
     else { const m=d.id.match(/^typing-(el|pt)-\d{6}$/); if(m) Object.assign(remote[m[1]], x.runs||{}); } }
   return {remote, cleared};
 }
-async function startSync(){
+async function startSync(uid){
+  if(SYNC.unsub){ SYNC.unsub(); SYNC.unsub=null; }
+  SYNC.db=FB.db; SYNC.uid=uid; SYNC.base='users/'+uid+'/data'; SYNC.docs=new Set(); setSyncNote('syncing');
+  wcRef=null; OTHERS={el:{}, pt:{}}; try{ localStorage.removeItem(KEY_O); }catch(e){}
+  const slow=setTimeout(()=>{ if(SYNC.state==='syncing' && SYNC.uid===uid) setSyncNote('offline'); }, 10000);
   try{
-    if(!window.claude || !window.claude.use) return;
-    const [db,user]=await Promise.all([window.claude.use('db'), window.claude.use('user')]);
-    if(!db || !user) return;
-    const uid=await user.id(); if(!uid) return;
-    SYNC.db=db; SYNC.base='data/users/'+uid; setSyncNote('syncing');
-    const slow=setTimeout(()=>{ if(SYNC.state==='syncing') setSyncNote('offline'); }, 10000);
-    const snap=await db.collection(SYNC.base).get();
-    clearTimeout(slow);
+    const snap=await SYNC.db.collection(SYNC.base).get();
+    clearTimeout(slow); if(SYNC.uid!==uid) return;
     const {remote, cleared}=readSnapshot(snap.docs); SYNC.cleared=cleared;
-    const missing=mergeRemote(remote, cleared); save(); renderStats();
+    const missing=mergeRemote(remote, cleared); save(); renderStats(); renderCounts();
+    wcRef=SYNC.db.collection(SYNC.base); for(const l of ['el','pt']) if(Object.keys(counts(l)).length) wcDirty[l]=true; pushCounts();
     for(const L of ['el','pt']){ const byMonth={}; for(const r of missing[L]) (byMonth[monthOf(r.t)] ||= {})[runKey(r)]=slim(r); for(const [m,runs] of Object.entries(byMonth)) writeRuns(`typing-${L}-${m}`, runs); }
-    await SYNC.q; setSyncNote('synced');
+    await SYNC.q; if(SYNC.uid!==uid) return; setSyncNote('synced');
     // live: results finished on another device show up here while this page is open
-    db.collection(SYNC.base).onSnapshot(s=>{ if(s.metadata.hasPendingWrites) return; const {remote, cleared}=readSnapshot(s.docs); SYNC.cleared=cleared; mergeRemote(remote, cleared); save(); renderStats(); setSyncNote('synced'); }, ()=>{});
-  }catch(e){ if(SYNC.db) setSyncNote('offline'); }
+    SYNC.unsub=SYNC.db.collection(SYNC.base).onSnapshot(s=>{ if(s.metadata.hasPendingWrites) return; const {remote, cleared}=readSnapshot(s.docs); SYNC.cleared=cleared; mergeRemote(remote, cleared); save(); renderStats(); if(!$('wcPanel').hidden) renderCounts(); setSyncNote('synced'); }, ()=>setSyncNote('offline'));
+  }catch(e){ clearTimeout(slow); if(SYNC.uid===uid) setSyncNote('offline'); }
 }
 function syncClear(L){
   if(!SYNC.db) return;
   const now=Date.now(); SYNC.cleared[L]=now;
-  enqueue(async ()=>{ const ref=SYNC.db.doc(SYNC.base+'/typing-meta'); const body={clearedAt:{[L]:now}}; try{ await ref.update(body); }catch(e){ if(e && e.code!=='invalid_argument') throw e; await ref.set(body); } });
+  enqueue(()=>SYNC.db.doc(SYNC.base+'/typing-meta').set({clearedAt:{[L]:now}}, {merge:true}));
   for(const id of [...SYNC.docs]) if(id.startsWith(`typing-${L}-`)){ SYNC.docs.delete(id); enqueue(()=>SYNC.db.doc(SYNC.base+'/'+id).delete()); }
 }
 // endless sessions are saved every 10 s, on pause and when the page is hidden, so walking away keeps the result
@@ -1029,12 +1023,49 @@ document.querySelectorAll('[data-wcs]').forEach(b=>b.addEventListener('click',()
 document.querySelectorAll('[data-wco]').forEach(b=>b.addEventListener('click',()=>{ wcSort=b.dataset.wco; store.settings.wcSort=wcSort; save(); renderCounts(); }));
 $('wcSearch').addEventListener('input', renderCounts);
 $('wcSearch').addEventListener('keydown', e=>e.stopPropagation());
+// ---- Firebase: sign-in and storage for syncing across devices
+/* The project's web config. These values are public by design (they only identify the project);
+   the Firestore rules are what keep data private: each user can only reach users/<their uid>.
+   Leave it null and everything stays in this browser, with no sign-in button. */
+const FIREBASE_CONFIG = null;
+const FB_SDK = 'https://www.gstatic.com/firebasejs/10.12.2/';
+const loadScript = src => new Promise((ok,no)=>{ const el=document.createElement('script'); el.src=src; el.onload=ok; el.onerror=no; document.head.appendChild(el); });
+function renderAcct(){ const b=$('acctBtn'); b.hidden=false; b.textContent = signedIn() ? 'Sign out' : 'Sign in with Google to sync'; b.title = signedIn() ? 'Signed in as '+(FB.user.email||'')+'. Your stats stay in this browser after signing out.' : 'Sign in to keep your stats in sync on all your devices'; setSyncNote(SYNC.state); setWcNote(acctNote('Saved to your account')); }
+async function initFirebase(){
+  if(!FIREBASE_CONFIG) return;
+  try{ await loadScript(FB_SDK+'firebase-app-compat.js'); await Promise.all([loadScript(FB_SDK+'firebase-auth-compat.js'), loadScript(FB_SDK+'firebase-firestore-compat.js')]); }
+  catch(e){ setSyncNote('offline'); return; }
+  firebase.initializeApp(FIREBASE_CONFIG);
+  FB.auth=firebase.auth(); FB.db=firebase.firestore(); FB.db.settings({ignoreUndefinedProperties:true});
+  FB.auth.onAuthStateChanged(u=>{
+    FB.user=u;
+    if(!u){ FB.auth.signInAnonymously().catch(()=>setSyncNote('offline')); return; }
+    renderAcct();
+    if(u.uid!==SYNC.uid) startSync(u.uid);
+  });
+}
+async function toggleAccount(){
+  if(!FB.auth) return;
+  if(signedIn()){ flushCounts(); await FB.auth.signOut(); return; } // a fresh anonymous account takes over; local stats stay
+  const provider=new firebase.auth.GoogleAuthProvider(), u=FB.auth.currentUser;
+  try{
+    if(u && u.isAnonymous){ await u.linkWithPopup(provider); FB.user=FB.auth.currentUser; renderAcct(); } // same uid, so stored results carry over
+    else await FB.auth.signInWithPopup(provider);
+  }catch(e){
+    const code=e && e.code;
+    // this Google account already syncs from another device: switch to it; startSync merges this browser's stats into it
+    if((code==='auth/credential-already-in-use' || code==='auth/email-already-in-use') && e.credential){ try{ flushCounts(); await FB.auth.signInWithCredential(e.credential); }catch(_){ setSyncNote('signin-failed'); } }
+    else if(code!=='auth/popup-closed-by-user' && code!=='auth/cancelled-popup-request') setSyncNote('signin-failed');
+  }
+}
+$('acctBtn').addEventListener('click', toggleAccount);
+
 // ---- export / import: move stats between browsers or devices by file (merges, never overwrites)
 let ioT=0;
 function ioNote(t){ $('ioNote').textContent=t; clearTimeout(ioT); ioT=setTimeout(()=>$('ioNote').textContent='',4000); }
 function exportStats(){
   saveCountsLocal();
-  const data={app:'language-typing-test', version:1, exported:new Date().toISOString(), hist:store.hist, counts:COUNTS};
+  const data={app:'language-typing-test', version:1, exported:new Date().toISOString(), hist:store.hist, counts:{el:allCounts('el'), pt:allCounts('pt')}};
   const url=URL.createObjectURL(new Blob([JSON.stringify(data)],{type:'application/json'}));
   const a=document.createElement('a'); a.href=url; a.download='typing-stats-'+new Date().toISOString().slice(0,10)+'.json';
   document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),2000);
@@ -1059,8 +1090,8 @@ $('exportBtn').addEventListener('click', exportStats);
 $('importBtn').addEventListener('click', ()=>$('importFile').click());
 $('importFile').addEventListener('change', e=>{ const f=e.target.files[0]; if(f) importStats(f); e.target.value=''; });
 
-reset(); renderStats(); renderCounts(); initCountSync();
-startSync();
+reset(); renderStats(); renderCounts();
+initFirebase();
 </script>
 
 
